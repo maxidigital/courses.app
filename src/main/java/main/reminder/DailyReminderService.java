@@ -40,16 +40,17 @@ public class DailyReminderService {
     private void checkAndNotify() {
         try {
             LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(2);
-            String dateStr = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(dateStr));
+            String isoDate = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
 
             if (courses.isEmpty()) {
-                XLogger.info(this, "No courses found for %s", dateStr);
+                XLogger.info(this, "No courses found for %s", isoDate);
                 return;
             }
 
             StringBuilder msg = new StringBuilder();
-            msg.append(String.format("🗓 Courses in 2 days (%s):\n\n", dateStr));
+            msg.append(String.format("🗓 Courses in 2 days (%s):\n\n", formattedDate));
             for (Course course : courses) {
                 msg.append("• ").append(course.toString()).append("\n\n");
             }
