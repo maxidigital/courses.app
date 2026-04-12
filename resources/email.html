@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Medical Questionnaire Follow-up - Freedive Mallorca</title>
+    <style type="text/css">
+        /* Estilos base */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: Arial, Helvetica, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* Contenedor principal con imagen de fondo */
+        .email-container {
+            background-image: url('bonaire.jpg');
+            background-size: cover;
+            background-position: center;
+            width: 800px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Capa semi-transparente para mejorar legibilidad */
+        .overlay {
+            background-color: rgba(255, 255, 255, 0.9);
+            margin: 40px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilos para el encabezado */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+
+        /* Estilos para el contenido */
+        .content {
+            padding: 20px;
+            color: #222222;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        h1 {
+            color: #005a87;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* Botón de llamada a la acción */
+        .cta-button {
+            display: inline-block;
+            background-color: #005a87;
+            color: #ffffff !important;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        /* Estilos para el pie de página */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #666666;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Estilos para dispositivos móviles */
+        @media screen and (max-width: 800px) {
+            .email-container {
+                width: 100% !important;
+                max-width: 800px !important;
+            }
+
+            .overlay {
+                margin: 20px !important;
+                padding: 15px !important;
+            }
+            
+            .content {
+                padding: 10px !important;
+            }
+            
+            h1 {
+                font-size: 24px !important;
+            }
+            
+            .cta-button {
+                display: block !important;
+                text-align: center !important;
+            }
+        }
+        
+        /* Optimización para clientes de correo en modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            .overlay {
+                background-color: rgba(0, 0, 0, 0.85) !important;
+            }
+            
+            .content {
+                color: #ffffff !important;
+            }
+            
+            h1 {
+                color: #4db8ff !important;
+            }
+            
+            .footer {
+                background-color: rgba(0, 0, 0, 0.95) !important;
+                color: #cccccc !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container" role="presentation" aria-hidden="true">
+        <!--[if mso]>
+        <table role="presentation" width="800" cellspacing="0" cellpadding="0" border="0" align="center">
+        <tr>
+        <td>
+        <![endif]-->
+        <div class="header">
+            <!-- Reemplazar con el logo de tu empresa -->
+            <img src="https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo1.png" alt="Logo de la Empresa" class="logo">
+        </div>
+
+        <div class="overlay">
+            <div class="content">
+                <h1>Medical Questionnaire Follow-up</h1>
+                <p>Hi {{client_name}},</p>
+                <p>Thank you for sending over the forms. 🙏🏼</p>
+                <p>I just wanted to quickly follow up regarding the medical questionnaire. For insurance purposes, all the questions need to be answered with "No." If there's a "Yes" response to any of them, we're required to ask for a medical evaluation signed by a doctor confirming you're fit to dive. It's a simple check that can be done easily anywhere, and many general practitioners are familiar with this kind of evaluation.</p>
+
+                <p>So you have two options:</p>
+                <ol>
+                    <li>You can get a brief medical clearance from a doctor stating you're fit for freediving.</li>
+                    <li>Or, if you're confident there's no actual concern, you can fill out the questionnaire again, answering "No" to all the questions.</li>
+                </ol>
+
+                <p>We're not medical professionals ourselves, so we rely on this process to meet our insurance requirements.</p>
+                <p>Let me know how you'd like to proceed — we're looking forward to diving with you soon!</p>
+
+                <p>All the best,<br>Ismael<br>Helping you feel at home underwater</p>
+                <a href="https://freedive-mallorca.com" class="cta-button">freedive-mallorca.com</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 Freedive Mallorca. All rights reserved.</p>
+            <p>Mallorca, Spain</p>
+            <p>
+                <a href="mailto:info@freedive-mallorca.com">info@freedive-mallorca.com</a> |
+                <a href="tel:+34612345678">+34 612 345 678</a>
+            </p>
+            <p>
+                <a href="https://freedive-mallorca.com/privacy">Privacy Policy</a>
+            </p>
+        </div>
+        <!--[if mso]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+    </div>
+</body>
+</html>

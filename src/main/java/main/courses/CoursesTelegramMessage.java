@@ -1,0 +1,99 @@
+package main.courses;
+
+import blue.underwater.commons.datetime.XDate;
+import blue.underwater.telegram.admin.F;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import main.calendar.CalendarService;
+import main.calendar.Course;
+import main.calendar.EventStudents;
+import main.calendar.Student;
+import main.sheets.medical.MedicalForm;
+import main.sheets.medical.MedicalFormQuestion;
+import main.sheets.medical.MedicalFormsService;
+
+/**
+ *
+ * @author bott_ma
+ */
+class CoursesTelegramMessage {
+
+    /**
+     *
+     */
+    public CoursesTelegramMessage() {
+    }
+
+    public static void main(String[] args) throws IOException {
+        CoursesTelegramMessage cc = new CoursesTelegramMessage();
+        List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate("2025-04-14"));
+        String ss = cc.getTelegramMessage(XDate.parseDate("2025-04-14"), courses, null);
+        System.out.println(ss);
+    }
+
+    /**
+     * 
+     * @param date
+     * @param courses
+     * @param callback The callback to be invoked when a student needs medical form reminder
+     * @return 
+     */
+    public String getTelegramMessage(XDate date, List<Course> courses, MedicalFormCallback callback) {        
+        StringBuilder sb = new StringBuilder();
+
+        if (!courses.isEmpty()) {
+            String formattedDate = date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+
+            String cal = F.hexToEmoji("U+1F4C5");
+            sb.append("<b>").append(cal).append(" ").append(formattedDate).append("").append("</b>\n\n");
+        }
+
+        for (Course course : courses) {
+            sb.append("   <u>").append(course.getType()).append("</u>\n");
+
+            EventStudents students = course.getEventStudents();
+            if (students.size() == 0) {
+                if (course.getDescription().isEmpty()) {
+                    sb.append("    No participants\n");
+                } else {
+                    sb.append("   <i>").append(course.getDescription()).append("</i>\n");
+                }
+                sb.append("\n");
+            } else {
+                for (int i = 0; i < students.size(); i++) {
+                    Student student = students.get(i);                    
+                    String studentEmail = student.getEmail();
+
+                    String mask = F.hexToEmoji("U+1F93F");
+                    String studentMessage = ContactTelegramMessage.toTelegramMessage(student.getContact());
+                    
+                    // Check if medical form is missing and callback is provided
+                    MedicalForm mf = MedicalFormsService.getInstance().findByEmail(studentEmail);
+                    if (mf == null && callback != null && student.getContact() != null) {
+                        // Trigger callback for students without medical form (only if contact exists)
+                        callback.onMedicalFormMissing(student.getContact(), course.getType());
+                    }
+                    
+                    // If no contact info, at least show the email
+                    if (studentMessage == null || studentMessage.trim().isEmpty()) {
+                        studentMessage = "<b>" + studentEmail + "</b>\n  ❓ Contact info not available\n";
+                    }
+                    
+                    sb.append(i + 1).append(". ").append(mask).append(" ")
+                            .append(studentMessage).append("\n");
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+    
+    /**
+     * Callback interface for handling students without medical forms
+     */
+    public interface MedicalFormCallback {
+        void onMedicalFormMissing(main.contacts.Contact contact, String courseName);
+    }
+
+}
