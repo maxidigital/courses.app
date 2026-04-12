@@ -1,28 +1,30 @@
 package main.courses.menuchats;
 
 import blue.underwater.telegram.admin.TelegramAdmin;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import main.courses.menus.CourseStartTimeMenu;
+import main.calendar.Course;
+import main.courses.menus.CourseSelectionMenu;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-public class CourseStartTimeMenuChat implements MenuChat {
+public class CourseSelectionMenuChat implements MenuChat {
 
     private final TelegramAdmin telegram;
     private final long chatId;
-    private final String courseText;
     private final String isoDate;
-    private final int courseIndex;
+    private final String formattedDate;
+    private final List<Course> courses;
     private long messageId;
 
-    public CourseStartTimeMenuChat(TelegramAdmin telegram, long chatId, String courseText, String isoDate, int courseIndex) {
+    public CourseSelectionMenuChat(TelegramAdmin telegram, long chatId, String isoDate, String formattedDate, List<Course> courses) {
         this.telegram = telegram;
         this.chatId = chatId;
-        this.courseText = courseText;
         this.isoDate = isoDate;
-        this.courseIndex = courseIndex;
+        this.formattedDate = formattedDate;
+        this.courses = courses;
     }
 
     @Override
@@ -30,20 +32,29 @@ public class CourseStartTimeMenuChat implements MenuChat {
         try {
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
-            message.setText(courseText + "\nWhat time should the course start?");
+            message.setText(buildText());
             message.setParseMode("HTML");
-            message.setReplyMarkup(new CourseStartTimeMenu(isoDate, courseIndex).getMenu());
-
+            message.setReplyMarkup(new CourseSelectionMenu(isoDate, courses).getMenu());
             var response = telegram.execute(message);
             this.messageId = response.getMessageId();
         } catch (TelegramApiException ex) {
-            Logger.getLogger(CourseStartTimeMenuChat.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(CourseSelectionMenuChat.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    private String buildText() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("🗓 Courses in 2 days (<b>%s</b>)\n\n", formattedDate));
+        for (Course course : courses) {
+            sb.append("• ").append(course.getType()).append("\n");
+        }
+        sb.append("\nSelect a course to send reminders:");
+        return sb.toString();
     }
 
     @Override
     public void callbackQueryReceived(CallbackQuery callbackQuery) {
-        // Handled by TelegramChatMain via prefix "course_remind_time:"
+        // Handled by TelegramChatMain via prefix "course_remind_select:"
     }
 
     @Override

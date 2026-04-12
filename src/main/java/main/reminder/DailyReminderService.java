@@ -13,6 +13,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import main.calendar.CalendarService;
 import main.calendar.Course;
+import main.calendar.Student;
+import main.courses.menuchats.CourseSelectionMenuChat;
 import main.courses.menuchats.CourseStartTimeMenuChat;
 import main.telegram.TelegramCenter;
 
@@ -50,19 +52,36 @@ public class DailyReminderService {
                 return;
             }
 
-            StringBuilder msg = new StringBuilder();
-            msg.append(String.format("🗓 Courses in 2 days (%s):\n\n", formattedDate));
-            for (Course course : courses) {
-                msg.append("• ").append(course.toString()).append("\n\n");
+            if (courses.size() == 1) {
+                Course course = courses.get(0);
+                String courseText = buildCourseDetails(course, formattedDate);
+                TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                    new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, courseText, isoDate, 0)
+                );
+            } else {
+                TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                    new CourseSelectionMenuChat(TelegramCenter.getInstance().getMain(), chatId, isoDate, formattedDate, courses)
+                );
             }
-
-            String messageText = msg.toString();
-            TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, messageText, isoDate)
-            );
 
         } catch (IOException e) {
             XLogger.severe(this, "DailyReminderService error: %s", e.getMessage());
         }
+    }
+
+    public static String buildCourseDetails(Course course, String formattedDate) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("🗓 <b>%s</b>\n", course.getType()));
+        sb.append(String.format("📅 %s\n", formattedDate));
+
+        List<Student> students = course.getEventStudents().getStudents();
+        if (!students.isEmpty()) {
+            sb.append(String.format("\n<b>%d participant%s:</b>\n", students.size(), students.size() == 1 ? "" : "s"));
+            for (Student student : students) {
+                sb.append("• ").append(student.getEmail()).append("\n");
+            }
+        }
+        sb.append("\n");
+        return sb.toString();
     }
 }

@@ -1,15 +1,25 @@
 package main.courses.menuchats;
 
+import blue.underwater.commons.datetime.XDate;
 import blue.underwater.commons.logging.XLogger;
 import blue.underwater.telegram.admin.TelegramAdmin;
 import blue.underwater.telegram.admin.TelegramChat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import main.calendar.CalendarService;
+import main.calendar.Course;
+import main.courses.menus.CourseLocationMenu;
+import main.courses.menus.CourseStartTimeMenu;
+import main.reminder.DailyReminderService;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 /**
@@ -71,9 +81,17 @@ public class TelegramChatMain implements TelegramChat
             return;
         }
 
-        // Check if this is a course start time callback
-        if (callbackData != null && callbackData.startsWith("course_time:")) {
-            handleCourseTimeCallback(callbackQuery);
+        // Course reminder flow
+        if (callbackData != null && callbackData.startsWith("course_remind_select:")) {
+            handleCourseRemindSelectCallback(callbackQuery);
+            return;
+        }
+        if (callbackData != null && callbackData.startsWith("course_remind_time:")) {
+            handleCourseRemindTimeCallback(callbackQuery);
+            return;
+        }
+        if (callbackData != null && callbackData.startsWith("course_remind_loc:")) {
+            handleCourseRemindLocCallback(callbackQuery);
             return;
         }
 
@@ -165,21 +183,84 @@ public class TelegramChatMain implements TelegramChat
         }
     }
 
-    private void handleCourseTimeCallback(CallbackQuery callbackQuery) {
-        // callback format: course_time:DATE:HOUR  e.g. course_time:2026-04-14:9
+    // course_remind_select:DATE:INDEX
+    private void handleCourseRemindSelectCallback(CallbackQuery callbackQuery) {
         String[] parts = callbackQuery.getData().split(":");
-        String hour = parts[parts.length - 1]; // "9" or "10"
-        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        String isoDate = parts[1];
+        int courseIndex = Integer.parseInt(parts[2]);
         long messageId = callbackQuery.getMessage().getMessageId();
-
         try {
-            String originalText = ((org.telegram.telegrambots.meta.api.objects.Message) callbackQuery.getMessage()).getText();
-            telegram.editMessage(chatId, messageId,
-                originalText + "\n\n✅ Start time: <b>" + timeStr + "</b>");
-            // TODO: ask next question
-        } catch (TelegramApiException ex) {
+            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            if (courseIndex >= courses.size()) return;
+            Course course = courses.get(courseIndex);
+            String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
+            editMessageWithMenu(messageId, courseText + "What time should the course start?",
+                new CourseStartTimeMenu(isoDate, courseIndex).getMenu());
+        } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    // course_remind_time:DATE:INDEX:HOUR
+    private void handleCourseRemindTimeCallback(CallbackQuery callbackQuery) {
+        String[] parts = callbackQuery.getData().split(":");
+        String isoDate = parts[1];
+        int courseIndex = Integer.parseInt(parts[2]);
+        String hour = parts[3];
+        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        long messageId = callbackQuery.getMessage().getMessageId();
+        try {
+            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            if (courseIndex >= courses.size()) return;
+            Course course = courses.get(courseIndex);
+            String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
+            editMessageWithMenu(messageId,
+                courseText + "⏰ Start time: <b>" + timeStr + "</b>\n\nWhere will the course take place?",
+                new CourseLocationMenu(isoDate, courseIndex, hour).getMenu());
+        } catch (Exception ex) {
+            Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // course_remind_loc:DATE:INDEX:HOUR:LOC
+    private void handleCourseRemindLocCallback(CallbackQuery callbackQuery) {
+        String[] parts = callbackQuery.getData().split(":");
+        String isoDate = parts[1];
+        int courseIndex = Integer.parseInt(parts[2]);
+        String hour = parts[3];
+        int locIndex = Integer.parseInt(parts[4]);
+        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        String location = CourseLocationMenu.LOCATIONS[locIndex];
+        long messageId = callbackQuery.getMessage().getMessageId();
+        try {
+            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            if (courseIndex >= courses.size()) return;
+            Course course = courses.get(courseIndex);
+            String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
+            int participantCount = course.getEventStudents().getStudentCount();
+            telegram.editMessage(chatId, messageId,
+                courseText +
+                "⏰ Start time: <b>" + timeStr + "</b>\n" +
+                "📍 Location: <b>" + location + "</b>\n\n" +
+                "✅ <b>Ready to send emails to " + participantCount +
+                " participant" + (participantCount == 1 ? "" : "s") + "</b>");
+            // TODO: send confirmation emails
+        } catch (Exception ex) {
+            Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void editMessageWithMenu(long messageId, String text, InlineKeyboardMarkup markup) throws TelegramApiException {
+        EditMessageText edit = new EditMessageText();
+        edit.setChatId(String.valueOf(chatId));
+        edit.setMessageId((int) messageId);
+        edit.setText(text);
+        edit.setParseMode("HTML");
+        edit.setReplyMarkup(markup);
+        telegram.execute(edit);
     }
 
     private boolean find = false;
