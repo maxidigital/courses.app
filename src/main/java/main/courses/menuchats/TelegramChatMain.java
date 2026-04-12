@@ -397,7 +397,7 @@ public class TelegramChatMain implements TelegramChat
             } else if (messageText.equals("/check48")) {
                 if (reminderService != null) {
                     telegram.sendTextMessage(chatId, "🔍 Checking courses in 48h...");
-                    new Thread(reminderService::checkAndNotify).start();
+                    new Thread(() -> reminderService.checkAndNotify(chatId)).start();
                 }
             } else {
                 this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);

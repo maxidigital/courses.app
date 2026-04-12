@@ -41,6 +41,10 @@ public class DailyReminderService {
     }
 
     public void checkAndNotify() {
+        checkAndNotify(-1);
+    }
+
+    public void checkAndNotify(long requesterChatId) {
         try {
             LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(2);
             String isoDate = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -49,6 +53,9 @@ public class DailyReminderService {
 
             if (courses.isEmpty()) {
                 XLogger.info(this, "No courses found for %s", isoDate);
+                if (requesterChatId > 0) {
+                    TelegramCenter.getInstance().toUser(requesterChatId, "📭 No courses found for %s", formattedDate);
+                }
                 return;
             }
 
@@ -66,6 +73,9 @@ public class DailyReminderService {
 
         } catch (IOException e) {
             XLogger.severe(this, "DailyReminderService error: %s", e.getMessage());
+            if (requesterChatId > 0) {
+                TelegramCenter.getInstance().toUser(requesterChatId, "❌ Error checking courses: %s", e.getMessage());
+            }
         }
     }
 
