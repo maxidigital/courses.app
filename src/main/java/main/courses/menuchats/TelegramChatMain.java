@@ -360,7 +360,7 @@ public class TelegramChatMain implements TelegramChat
                 String firstName = resolveFirstName(email);
                 String appUrl = System.getProperty("app.url", "");
                 String token = blue.underwater.calendar.admin.event.Tools.emailHash(email);
-                String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&token=" + token;
+                String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&event=" + java.net.URLEncoder.encode(course.getXEvent().getId(), "UTF-8") + "&token=" + token;
                 String html;
                 if (totalDays == 1) {
                     html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], duration, confirmationUrl);

@@ -61,13 +61,6 @@ public class CalendarService {
                 "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
                 "$1  " + ConfirmationState.CONFIRMED.marker
             );
-            boolean changed = !updated.equals(raw);
-            main.telegram.TelegramCenter.getInstance().toRoot(
-                "🔍 markConfirmed: %s\nChanged: %b\nBefore: <code>%s</code>\nAfter: <code>%s</code>",
-                email, changed,
-                raw.length() > 200 ? raw.substring(0, 200) : raw,
-                updated.length() > 200 ? updated.substring(0, 200) : updated
-            );
             event.getDescription().setText(updated);
             admin.updateEvent(event);
             XLogger.info(this, "Marked %s as CONFIRMED in calendar", email);

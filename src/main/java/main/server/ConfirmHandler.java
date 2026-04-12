@@ -20,11 +20,19 @@ public class ConfirmHandler implements HttpHandler {
         String query = exchange.getRequestURI().getQuery();
         String date = null;
         String token = null;
+        String eventId = null;
 
         if (query != null) {
             for (String param : query.split("&")) {
                 if (param.startsWith("date=")) date = param.substring(5);
                 else if (param.startsWith("token=")) token = param.substring(6);
+                else if (param.startsWith("event=")) {
+                    try {
+                        eventId = java.net.URLDecoder.decode(param.substring(6), "UTF-8");
+                    } catch (Exception e) {
+                        eventId = param.substring(6);
+                    }
+                }
             }
         }
 
@@ -32,7 +40,7 @@ public class ConfirmHandler implements HttpHandler {
         if (date == null || token == null) {
             html = errorPage("Invalid confirmation link.");
         } else {
-            html = processConfirmation(date, token);
+            html = processConfirmation(date, token, eventId);
         }
 
         byte[] bytes = html.getBytes("UTF-8");
@@ -43,10 +51,11 @@ public class ConfirmHandler implements HttpHandler {
         }
     }
 
-    private String processConfirmation(String isoDate, String token) {
+    private String processConfirmation(String isoDate, String token, String eventId) {
         try {
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             for (Course course : courses) {
+                if (eventId != null && !eventId.equals(course.getXEvent().getId())) continue;
                 Student student = course.getEventStudents().getStudentByEmailHash(token);
                 if (student != null) {
                     CalendarService.getInstance().markStudentAsConfirmed(course.getXEvent(), student.getEmail());
