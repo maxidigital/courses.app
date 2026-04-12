@@ -82,8 +82,8 @@ class CoursesTelegramMessage {
                     }
 
                     String stateTag = "";
-                    if (student.getState() == ConfirmationState.CONFIRMED) stateTag = "  ✅ Confirmed\n";
-                    else if (student.getState() == ConfirmationState.PENDING) stateTag = "  ⏳ Pending\n";
+                    if (student.getState() == ConfirmationState.CONFIRMED) stateTag = "  ✅ Details confirmed\n";
+                    else if (student.getState() == ConfirmationState.PENDING) stateTag = "  ⏳ Details pending\n";
 
                     sb.append(i + 1).append(". ").append(mask).append(" ")
                             .append(studentMessage).append(stateTag).append("\n");
