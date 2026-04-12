@@ -243,7 +243,7 @@ public class TelegramChatMain implements TelegramChat
         String hour = parts[3];
         int locIndex = Integer.parseInt(parts[4]);
         String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
-        String location = CourseLocationMenu.LOCATIONS[locIndex];
+        String location = CourseLocationMenu.getName(locIndex);
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
@@ -274,8 +274,8 @@ public class TelegramChatMain implements TelegramChat
         String hour = parts[3];
         int locIndex = Integer.parseInt(parts[4]);
         String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
-        String location = CourseLocationMenu.LOCATIONS[locIndex];
-        String mapsUrl = CourseLocationMenu.LOCATION_MAPS_URLS[locIndex];
+        String location = CourseLocationMenu.getName(locIndex);
+        String mapsUrl = CourseLocationMenu.getUrl(locIndex);
         long messageId = callbackQuery.getMessage().getMessageId();
 
         if (!sending) {

@@ -10,6 +10,7 @@ import java.io.IOException;
 import main.contacts.ContactsService;
 import main.courses.menuchats.TelegramChatMain;
 import main.reminder.DailyReminderService;
+import main.sheets.SettingsService;
 import main.sheets.medical.MedicalFormsService;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -47,6 +48,8 @@ public class Main implements TelegramAdmin.Listener
         System.out.println("Starting MedicalFormsService initialization...");
         MedicalFormsService.getInstance().init();
         System.out.println("MedicalFormsService initialized");
+
+        SettingsService.getInstance().load();
         
         DailyReminderService reminderService = new DailyReminderService();
         reminderService.start();

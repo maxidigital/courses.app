@@ -2,24 +2,11 @@ package main.courses.menus;
 
 import java.util.ArrayList;
 import java.util.List;
+import main.sheets.SettingsService;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 public class CourseLocationMenu implements InlineMenu {
-
-    public static final String[] LOCATIONS = {
-        "Cala Sant Vicent",
-        "Cala Deia",
-        "Puerto de Pollença",
-        "Puerto de Andratx"
-    };
-
-    public static final String[] LOCATION_MAPS_URLS = {
-        "https://www.google.com/maps/search/?api=1&query=Cala+Sant+Vicent+Mallorca",
-        "https://www.google.com/maps/search/?api=1&query=Cala+Deia+Mallorca",
-        "https://www.google.com/maps/search/?api=1&query=Puerto+de+Pollença+Mallorca",
-        "https://www.google.com/maps/search/?api=1&query=Puerto+de+Andratx+Mallorca"
-    };
 
     private final String isoDate;
     private final int courseIndex;
@@ -31,14 +18,25 @@ public class CourseLocationMenu implements InlineMenu {
         this.hour = hour;
     }
 
+    public static String getName(int index) {
+        List<String> names = SettingsService.getInstance().getLocationNames();
+        return index < names.size() ? names.get(index) : "Unknown";
+    }
+
+    public static String getUrl(int index) {
+        List<String> urls = SettingsService.getInstance().getLocationUrls();
+        return index < urls.size() ? urls.get(index) : "";
+    }
+
     @Override
     public InlineKeyboardMarkup getMenu() {
+        List<String> names = SettingsService.getInstance().getLocationNames();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        for (int i = 0; i < LOCATIONS.length; i += 2) {
+        for (int i = 0; i < names.size(); i += 2) {
             List<InlineKeyboardButton> row = new ArrayList<>();
-            for (int j = i; j < Math.min(i + 2, LOCATIONS.length); j++) {
+            for (int j = i; j < Math.min(i + 2, names.size()); j++) {
                 row.add(InlineKeyboardButton.builder()
-                        .text(LOCATIONS[j])
+                        .text(names.get(j))
                         .callbackData("course_remind_loc:" + isoDate + ":" + courseIndex + ":" + hour + ":" + j)
                         .build());
             }
