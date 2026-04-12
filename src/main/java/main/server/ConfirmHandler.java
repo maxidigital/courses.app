@@ -96,8 +96,7 @@ public class ConfirmHandler implements HttpHandler {
         return PAGE_HEAD
             + "<div class=\"emoji\">✅</div>"
             + "<h1>Fantástico, thanks for confirming, " + name + "!</h1>"
-            + "<p>Everything is set.</p>"
-            + "<p>See you very soon in the water.</p>"
+            + "<p>Everything is set — see you very soon in the water 🧜‍♀️</p>"
             + "</div></body></html>";
     }
 

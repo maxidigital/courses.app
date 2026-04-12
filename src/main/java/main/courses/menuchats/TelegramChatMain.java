@@ -342,7 +342,12 @@ public class TelegramChatMain implements TelegramChat
             }
 
             int sent = 0;
+            int skipped = 0;
             for (main.calendar.Student student : course.getEventStudents().getStudents()) {
+                if (student.isPending() || student.isConfirmed()) {
+                    skipped++;
+                    continue;
+                }
                 String email = student.getEmail();
                 String firstName = resolveFirstName(email);
                 String appUrl = System.getProperty("app.url", "");
@@ -363,7 +368,7 @@ public class TelegramChatMain implements TelegramChat
                 }
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
-                    .setSubject("Your " + course.getType() + " – See You Soon!")
+                    .setSubject("Your " + course.getType() + " – Final Details ✅")
                     .setHtmlContent(html);
                 EmailAdmin.getInstance().send(msg);
                 CalendarService.getInstance().markStudentAsPending(course.getXEvent(), email);
@@ -372,9 +377,12 @@ public class TelegramChatMain implements TelegramChat
 
             String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
-            telegram.editMessage(chatId, messageId,
-                courseText + buildDaySummary(times, locs, isoDate) +
-                "\n\n✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>");
+            String result = sent > 0
+                ? "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
+                : "ℹ️ <b>No emails sent</b>";
+            if (skipped > 0)
+                result += "\n⏭ " + skipped + " already notified (pending/confirmed) — skipped";
+            telegram.editMessage(chatId, messageId, courseText + buildDaySummary(times, locs, isoDate) + "\n\n" + result);
 
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
