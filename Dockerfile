@@ -1,13 +1,16 @@
 FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY . .
-RUN mvn package -pl apps/courses.app -am -DskipTests -B
+ARG GITHUB_TOKEN
+RUN mvn package -DskipTests -B \
+    -s settings.xml \
+    -DGITHUB_TOKEN=${GITHUB_TOKEN}
 
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=builder /app/apps/courses.app/target/courses.app-1.12.jar app.jar
-COPY apps/courses.app/config.properties /app/config.properties
-COPY apps/courses.app/freedivemallorcaadmin-1a2eb9366fad.json /app/freedivemallorcaadmin-1a2eb9366fad.json
+COPY --from=builder /app/target/courses.app-1.12.jar app.jar
+COPY docker-entrypoint.sh .
+RUN chmod +x docker-entrypoint.sh
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["./docker-entrypoint.sh"]

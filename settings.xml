@@ -1,0 +1,23 @@
+<settings>
+  <servers>
+    <server>
+      <id>github-underwater</id>
+      <username>maxidigital</username>
+      <password>${GITHUB_TOKEN}</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>github-underwater</id>
+          <url>https://maven.pkg.github.com/maxidigital/underwater</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>github</activeProfile>
+  </activeProfiles>
+</settings>
