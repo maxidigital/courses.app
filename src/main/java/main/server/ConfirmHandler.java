@@ -64,6 +64,7 @@ public class ConfirmHandler implements HttpHandler {
     private String successPage() {
         return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
             + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+            + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
             + "<title>Freedive Mallorca</title>"
             + "<style>body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
             + "min-height:100vh;margin:0;background:#f0f8ff;}"
@@ -81,6 +82,7 @@ public class ConfirmHandler implements HttpHandler {
 
     private String errorPage(String message) {
         return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+            + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
             + "<title>Freedive Mallorca</title>"
             + "<style>body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
             + "min-height:100vh;margin:0;background:#f0f8ff;}"
