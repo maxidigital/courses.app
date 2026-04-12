@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import main.calendar.CalendarService;
 import main.calendar.Course;
+import blue.underwater.calendar.admin.event.ConfirmationState;
 import main.calendar.EventStudents;
 import main.calendar.Student;
 import main.sheets.medical.MedicalForm;
@@ -79,9 +80,13 @@ class CoursesTelegramMessage {
                     if (studentMessage == null || studentMessage.trim().isEmpty()) {
                         studentMessage = "<b>" + studentEmail + "</b>\n  ❓ Contact info not available\n";
                     }
-                    
+
+                    String stateTag = "";
+                    if (student.getState() == ConfirmationState.CONFIRMED) stateTag = "  ✅ Confirmed\n";
+                    else if (student.getState() == ConfirmationState.PENDING) stateTag = "  ⏳ Pending\n";
+
                     sb.append(i + 1).append(". ").append(mask).append(" ")
-                            .append(studentMessage).append("\n");
+                            .append(studentMessage).append(stateTag).append("\n");
                 }
             }
         }

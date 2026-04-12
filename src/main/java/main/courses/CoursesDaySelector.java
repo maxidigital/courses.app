@@ -87,7 +87,7 @@ public class CoursesDaySelector {
             }
             
             // If there are contacts without medical forms and user is admin, check if any still need reminders
-            if (!contactsWithoutMedical.isEmpty() && TelegramCenter.getInstance().isAdmin(chatId)) {
+            if (!contactsWithoutMedical.isEmpty() && (TelegramCenter.getInstance().isAdmin(chatId) || blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId))) {
                 // Filter out contacts that were already reminded
                 List<Contact> contactsNeedingReminder = new ArrayList<>();
                 for (Contact contact : contactsWithoutMedical) {
