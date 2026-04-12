@@ -91,6 +91,14 @@ public class TelegramChatMain implements TelegramChat
         }
 
         // Course reminder flow
+        if (callbackData != null && callbackData.equals("course_cancel")) {
+            try {
+                telegram.editMessage(chatId, messageId, "❌ <b>Action cancelled</b>");
+            } catch (TelegramApiException ex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
         if (callbackData != null && callbackData.startsWith("course_remind_select:")) {
             handleCourseRemindSelectCallback(callbackQuery);
             return;

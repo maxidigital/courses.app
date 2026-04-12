@@ -47,6 +47,13 @@ public class CourseLocationMenu implements InlineMenu {
             }
             keyboard.add(row);
         }
+        List<InlineKeyboardButton> cancelRow = new ArrayList<>();
+        cancelRow.add(InlineKeyboardButton.builder()
+                .text("❌ Cancel")
+                .callbackData("course_cancel")
+                .build());
+        keyboard.add(cancelRow);
+
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(keyboard);
         return markup;

@@ -66,6 +66,7 @@ public class CalendarService {
             XLogger.info(this, "Marked %s as CONFIRMED in calendar", email);
         } catch (IOException | GeneralSecurityException e) {
             XLogger.severe(this, "Failed to update calendar for %s: %s", email, e.getMessage());
+            main.telegram.TelegramCenter.getInstance().toRoot("❌ <b>markStudentAsConfirmed failed</b>\nEmail: %s\nError: %s", email, e.getMessage());
         }
     }
 
