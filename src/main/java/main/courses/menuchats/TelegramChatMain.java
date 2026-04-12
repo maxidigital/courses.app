@@ -15,6 +15,7 @@ import main.calendar.CalendarService;
 import main.calendar.Course;
 import main.contacts.Contact;
 import main.contacts.ContactsService;
+import main.courses.CourseType;
 import main.courses.menus.CourseConfirmMenu;
 import main.courses.menus.CourseLocationMenu;
 import main.courses.menus.CourseStartTimeMenu;
@@ -207,20 +208,23 @@ public class TelegramChatMain implements TelegramChat
             Course course = courses.get(courseIndex);
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
-            editMessageWithMenu(messageId, courseText + "What time should the course start?",
-                new CourseStartTimeMenu(isoDate, courseIndex).getMenu());
+            editMessageWithMenu(messageId, courseText + "Day 1 — What time should it start?",
+                new CourseStartTimeMenu(isoDate, courseIndex, 1, "", "").getMenu());
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    // course_remind_time:DATE:INDEX:HOUR
+    // course_remind_time:DATE:CIDX:DAY:TPREV:LPREV:SLOT
     private void handleCourseRemindTimeCallback(CallbackQuery callbackQuery) {
         String[] parts = callbackQuery.getData().split(":");
         String isoDate = parts[1];
         int courseIndex = Integer.parseInt(parts[2]);
-        String hour = parts[3];
-        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        int day = Integer.parseInt(parts[3]);
+        String timesPrev = parts[4];
+        String locsPrev = parts[5];
+        int slot = Integer.parseInt(parts[6]);
+        String newTimes = timesPrev + slot;
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
@@ -228,55 +232,75 @@ public class TelegramChatMain implements TelegramChat
             Course course = courses.get(courseIndex);
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
+            String timeStr = CourseStartTimeMenu.slotToTimeStr(slot);
             editMessageWithMenu(messageId,
-                courseText + "⏰ Start time: <b>" + timeStr + "</b>\n\nWhere will the course take place?",
-                new CourseLocationMenu(isoDate, courseIndex, hour).getMenu());
+                courseText + "⏰ Day " + day + " — <b>" + timeStr + "</b>\n\nWhere will Day " + day + " take place?",
+                new CourseLocationMenu(isoDate, courseIndex, day, newTimes, locsPrev).getMenu());
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    // course_remind_loc:DATE:INDEX:HOUR:LOC
+    // course_remind_loc:DATE:CIDX:DAY:TIMES:LPREV:SLOT
     private void handleCourseRemindLocCallback(CallbackQuery callbackQuery) {
         String[] parts = callbackQuery.getData().split(":");
         String isoDate = parts[1];
         int courseIndex = Integer.parseInt(parts[2]);
-        String hour = parts[3];
-        int locIndex = Integer.parseInt(parts[4]);
-        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
-        String location = CourseLocationMenu.getName(locIndex);
+        int day = Integer.parseInt(parts[3]);
+        String times = parts[4];
+        String locsPrev = parts[5];
+        int slot = Integer.parseInt(parts[6]);
+        String newLocs = locsPrev + slot;
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
+            int totalDays = CourseType.getDays(course.getType());
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
-            int participantCount = course.getEventStudents().getStudentCount();
-            editMessageWithMenu(messageId,
-                courseText +
-                "⏰ Start time: <b>" + timeStr + "</b>\n" +
-                "📍 Location: <b>" + location + "</b>\n\n" +
-                "Send confirmation emails to <b>" + participantCount +
-                " participant" + (participantCount == 1 ? "" : "s") + "</b>?",
-                new CourseConfirmMenu(isoDate, courseIndex, hour, locIndex).getMenu());
+            if (day < totalDays) {
+                int nextDay = day + 1;
+                editMessageWithMenu(messageId,
+                    courseText + buildDaySummary(times, newLocs, isoDate) +
+                    "\n\nDay " + nextDay + " — What time should it start?",
+                    new CourseStartTimeMenu(isoDate, courseIndex, nextDay, times, newLocs).getMenu());
+            } else {
+                int participantCount = course.getEventStudents().getStudentCount();
+                editMessageWithMenu(messageId,
+                    courseText + buildDaySummary(times, newLocs, isoDate) +
+                    "\n\nSend confirmation emails to <b>" + participantCount +
+                    " participant" + (participantCount == 1 ? "" : "s") + "</b>?",
+                    new CourseConfirmMenu(isoDate, courseIndex, times, newLocs).getMenu());
+            }
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    // course_confirm_send/cancel:DATE:INDEX:HOUR:LOC
+    private String buildDaySummary(String times, String locs, String isoDate) {
+        StringBuilder sb = new StringBuilder();
+        java.time.LocalDate base = java.time.LocalDate.parse(isoDate);
+        for (int i = 0; i < locs.length(); i++) {
+            int tSlot = Character.getNumericValue(times.charAt(i));
+            int lIdx = Character.getNumericValue(locs.charAt(i));
+            String dayStr = base.plusDays(i).format(DateTimeFormatter.ofPattern("EEE d MMM"));
+            sb.append("\n⏰ Day ").append(i + 1).append(" (").append(dayStr).append("): ")
+              .append(CourseStartTimeMenu.slotToTimeStr(tSlot))
+              .append(" @ ").append(CourseLocationMenu.getName(lIdx));
+        }
+        return sb.toString();
+    }
+
+    // course_confirm_send/cancel:DATE:CIDX:TIMES:LOCS
     private void handleCourseConfirmCallback(CallbackQuery callbackQuery) {
         String callbackData = callbackQuery.getData();
         boolean sending = callbackData.startsWith("course_confirm_send:");
         String[] parts = callbackData.split(":");
         String isoDate = parts[1];
         int courseIndex = Integer.parseInt(parts[2]);
-        String hour = parts[3];
-        int locIndex = Integer.parseInt(parts[4]);
-        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
-        String location = CourseLocationMenu.getName(locIndex);
-        String mapsUrl = CourseLocationMenu.getUrl(locIndex);
+        String times = parts[3];
+        String locs = parts[4];
         long messageId = callbackQuery.getMessage().getMessageId();
 
         if (!sending) {
@@ -301,10 +325,19 @@ public class TelegramChatMain implements TelegramChat
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
+            int totalDays = CourseType.getDays(course.getType());
 
             LocalDate day1Date = LocalDate.parse(isoDate);
-            String day1 = day1Date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"));
-            String day2 = day1Date.plusDays(1).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"));
+            String[] dayFormatted = new String[totalDays];
+            String[] timeStrs = new String[totalDays];
+            String[] locNames = new String[totalDays];
+            String[] locUrls = new String[totalDays];
+            for (int i = 0; i < totalDays; i++) {
+                dayFormatted[i] = day1Date.plusDays(i).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"));
+                timeStrs[i] = CourseStartTimeMenu.slotToTimeStr(Character.getNumericValue(times.charAt(i)));
+                locNames[i] = CourseLocationMenu.getName(Character.getNumericValue(locs.charAt(i)));
+                locUrls[i] = CourseLocationMenu.getUrl(Character.getNumericValue(locs.charAt(i)));
+            }
 
             int sent = 0;
             for (main.calendar.Student student : course.getEventStudents().getStudents()) {
@@ -313,10 +346,22 @@ public class TelegramChatMain implements TelegramChat
                 String appUrl = System.getProperty("app.url", "");
                 String token = blue.underwater.calendar.admin.event.Tools.emailHash(email);
                 String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&token=" + token;
-                String html = CourseReminderEmailBuilder.build(firstName, day1, day2, timeStr, location, mapsUrl, confirmationUrl);
+                String html;
+                if (totalDays == 1) {
+                    html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], confirmationUrl);
+                } else if (totalDays == 2) {
+                    html = CourseReminderEmailBuilder.build2Day(firstName,
+                        dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
+                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1], confirmationUrl);
+                } else {
+                    html = CourseReminderEmailBuilder.build3Day(firstName,
+                        dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
+                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1],
+                        dayFormatted[2], timeStrs[2], locNames[2], locUrls[2], confirmationUrl);
+                }
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
-                    .setSubject("Your Freediver Course – See You Soon!")
+                    .setSubject("Your " + course.getType() + " – See You Soon!")
                     .setHtmlContent(html);
                 EmailAdmin.getInstance().send(msg);
                 CalendarService.getInstance().markStudentAsPending(course.getXEvent(), email);
@@ -326,10 +371,8 @@ public class TelegramChatMain implements TelegramChat
             String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
             telegram.editMessage(chatId, messageId,
-                courseText +
-                "⏰ Start time: <b>" + timeStr + "</b>\n" +
-                "📍 Location: <b>" + location + "</b>\n\n" +
-                "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>");
+                courseText + buildDaySummary(times, locs, isoDate) +
+                "\n\n✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>");
 
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);

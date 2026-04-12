@@ -2,23 +2,105 @@ package main.reminder;
 
 public class CourseReminderEmailBuilder {
 
-    private static final String DAY2_LOCATION = "Bon Aire (Alcúdia)";
-    private static final String DAY2_MAPS_URL =
-        "https://www.google.com/maps/search/?api=1&query=Bon+Aire+Alcudia+Mallorca";
+    public static String build1Day(String firstName, String day1, String startTime,
+                                   String location, String mapsUrl, String confirmationUrl) {
+        return head()
+            + "  <p>Hi " + firstName + ",</p>\n"
+            + "\n"
+            + "  <p>We are excited to have you join us for your upcoming session.</p>\n"
+            + "\n"
+            + "  <p>Here are all the details:</p>\n"
+            + "\n"
+            + "  <div class=\"day-title\">" + day1 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + location + "<br>\n"
+            + "    <a href=\"" + mapsUrl + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll start with a theory session followed by your session in the water.\n"
+            + "  </div>\n"
+            + "\n"
+            + confirmBlock(confirmationUrl)
+            + whatToBring()
+            + tips()
+            + footer();
+    }
 
-    /**
-     * Builds the HTML body for the Freediver Course confirmation email.
-     *
-     * @param firstName  Participant's first name
-     * @param day1       Day 1 formatted date, e.g. "Monday, 14 April 2026"
-     * @param day2       Day 2 formatted date, e.g. "Tuesday, 15 April 2026"
-     * @param startTime  Start time string, e.g. "9:00 AM" or "10:00 AM"
-     * @param day1Location  Location name for Day 1
-     * @param day1MapsUrl   Google Maps URL for Day 1 location
-     */
-    public static String build(String firstName, String day1, String day2,
-                               String startTime, String day1Location, String day1MapsUrl,
-                               String confirmationUrl) {
+    public static String build2Day(String firstName,
+                                   String day1, String startTime1, String loc1, String url1,
+                                   String day2, String startTime2, String loc2, String url2,
+                                   String confirmationUrl) {
+        return head()
+            + "  <p>Hi " + firstName + ",</p>\n"
+            + "\n"
+            + "  <p>We are excited to have you join us for your upcoming Freediver Course.</p>\n"
+            + "\n"
+            + "  <p>Here are all the details for our days together:</p>\n"
+            + "\n"
+            + "  <div class=\"day-title\">Day 1: " + day1 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + loc1 + "<br>\n"
+            + "    <a href=\"" + url1 + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime1 + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll start with a theory session (around 1.5–2 hours), followed by your first session in the water exploring duck-dives and body positioning.\n"
+            + "  </div>\n"
+            + "\n"
+            + "  <div class=\"day-title\">Day 2: " + day2 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + loc2 + "<br>\n"
+            + "    <a href=\"" + url2 + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime2 + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll dive deeper into breathing techniques (Pranayamas) and safety procedures before heading back into the blue.\n"
+            + "  </div>\n"
+            + "\n"
+            + confirmBlock(confirmationUrl)
+            + whatToBring()
+            + tips()
+            + footer();
+    }
+
+    public static String build3Day(String firstName,
+                                   String day1, String startTime1, String loc1, String url1,
+                                   String day2, String startTime2, String loc2, String url2,
+                                   String day3, String startTime3, String loc3, String url3,
+                                   String confirmationUrl) {
+        return head()
+            + "  <p>Hi " + firstName + ",</p>\n"
+            + "\n"
+            + "  <p>We are excited to have you join us for your upcoming Advance Freediver Course.</p>\n"
+            + "\n"
+            + "  <p>Here are all the details for our days together:</p>\n"
+            + "\n"
+            + "  <div class=\"day-title\">Day 1: " + day1 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + loc1 + "<br>\n"
+            + "    <a href=\"" + url1 + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime1 + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll start with a theory session covering advanced freediving concepts, followed by your first water session.\n"
+            + "  </div>\n"
+            + "\n"
+            + "  <div class=\"day-title\">Day 2: " + day2 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + loc2 + "<br>\n"
+            + "    <a href=\"" + url2 + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime2 + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll go deeper into breathing techniques (Pranayamas), equalization and safety procedures before heading into the blue.\n"
+            + "  </div>\n"
+            + "\n"
+            + "  <div class=\"day-title\">Day 3: " + day3 + "</div>\n"
+            + "  <div class=\"detail\">\n"
+            + "    Location: " + loc3 + "<br>\n"
+            + "    <a href=\"" + url3 + "\">📍 View on Google Maps</a><br>\n"
+            + "    Time: " + startTime3 + " – approx. 2:00/3:00 PM<br>\n"
+            + "    What to expect: We'll consolidate everything with advanced dives, refinement of technique, and your final evaluation.\n"
+            + "  </div>\n"
+            + "\n"
+            + confirmBlock(confirmationUrl)
+            + whatToBring()
+            + tips()
+            + footer();
+    }
+
+    private static String head() {
         return "<!DOCTYPE html>\n"
             + "<html lang=\"en\">\n"
             + "<head>\n"
@@ -34,42 +116,29 @@ public class CourseReminderEmailBuilder {
             + "  </style>\n"
             + "</head>\n"
             + "<body>\n"
-            + "\n"
-            + "  <p>Hi " + firstName + ",</p>\n"
-            + "\n"
-            + "  <p>We are excited to have you join us for your upcoming Freediver Course.</p>\n"
-            + "\n"
-            + "  <p>Here are all the details for our days together:</p>\n"
-            + "\n"
-            + "  <div class=\"day-title\">Day 1: " + day1 + "</div>\n"
-            + "  <div class=\"detail\">\n"
-            + "    Location: " + day1Location + "<br>\n"
-            + "    <a href=\"" + day1MapsUrl + "\">📍 View on Google Maps</a><br>\n"
-            + "    Time: " + startTime + " – approx. 2:00/3:00 PM<br>\n"
-            + "    What to expect: We'll start with a theory session (around 1.5–2 hours), followed by your first session in the water exploring duck-dives and body positioning.\n"
-            + "  </div>\n"
-            + "\n"
-            + "  <div class=\"day-title\">Day 2: " + day2 + "</div>\n"
-            + "  <div class=\"detail\">\n"
-            + "    Location: " + DAY2_LOCATION + "<br>\n"
-            + "    <a href=\"" + DAY2_MAPS_URL + "\">📍 View on Google Maps</a><br>\n"
-            + "    Time: " + startTime + " – approx. 2:00/3:00 PM<br>\n"
-            + "    What to expect: We'll dive deeper into breathing techniques (Pranayamas) and safety procedures before heading back into the blue.\n"
-            + "  </div>\n"
-            + "\n"
-            + "  <p><strong>Please confirm your attendance</strong> so we can make sure everything is ready for you. It only takes one click:</p>\n"
+            + "\n";
+    }
+
+    private static String confirmBlock(String confirmationUrl) {
+        return "  <p><strong>Please confirm your attendance</strong> so we can make sure everything is ready for you. It only takes one click:</p>\n"
             + "  <p style=\"text-align:center;margin-top:16px;\">"
             + "<a href=\"" + confirmationUrl + "\" style=\"background:#0077b6;color:white;padding:12px 28px;"
             + "border-radius:8px;text-decoration:none;font-weight:bold;\">✅ Confirm my spot</a></p>\n"
-            + "\n"
-            + "  <div class=\"section-title\">What to bring:</div>\n"
+            + "\n";
+    }
+
+    private static String whatToBring() {
+        return "  <div class=\"section-title\">What to bring:</div>\n"
             + "  <ul>\n"
             + "    <li>👙 Swimsuit (to wear under the wetsuit)</li>\n"
             + "    <li>Towel</li>\n"
             + "    <li>💧 Water to stay hydrated during the theory session</li>\n"
             + "  </ul>\n"
-            + "\n"
-            + "  <div class=\"section-title\">A few tips for the best experience:</div>\n"
+            + "\n";
+    }
+
+    private static String tips() {
+        return "  <div class=\"section-title\">A few tips for the best experience:</div>\n"
             + "  <ul>\n"
             + "    <li>Try to avoid alcohol the night before and coffee in the morning.</li>\n"
             + "    <li>A light breakfast is recommended so you don't freedive on a full stomach.</li>\n"
@@ -79,8 +148,11 @@ public class CourseReminderEmailBuilder {
             + "  <p>We provide all the professional equipment you'll need, so just bring your curiosity and your smile!</p>\n"
             + "\n"
             + "  <p>If you have any questions at all, please just let me know. We are looking forward to seeing you soon in the water!</p>\n"
-            + "\n"
-            + "  <div class=\"footer\">\n"
+            + "\n";
+    }
+
+    private static String footer() {
+        return "  <div class=\"footer\">\n"
             + "    Saludos,<br>\n"
             + "    <strong>Team Freedive Mallorca</strong>\n"
             + "  </div>\n"

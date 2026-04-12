@@ -9,19 +9,19 @@ public class CourseConfirmMenu implements InlineMenu {
 
     private final String isoDate;
     private final int courseIndex;
-    private final String hour;
-    private final int locIndex;
+    private final String times;
+    private final String locs;
 
-    public CourseConfirmMenu(String isoDate, int courseIndex, String hour, int locIndex) {
+    public CourseConfirmMenu(String isoDate, int courseIndex, String times, String locs) {
         this.isoDate = isoDate;
         this.courseIndex = courseIndex;
-        this.hour = hour;
-        this.locIndex = locIndex;
+        this.times = times;
+        this.locs = locs;
     }
 
     @Override
     public InlineKeyboardMarkup getMenu() {
-        String base = isoDate + ":" + courseIndex + ":" + hour + ":" + locIndex;
+        String base = isoDate + ":" + courseIndex + ":" + times + ":" + locs;
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
 
         List<InlineKeyboardButton> row1 = new ArrayList<>();

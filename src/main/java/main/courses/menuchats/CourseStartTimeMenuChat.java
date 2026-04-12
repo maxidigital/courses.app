@@ -30,9 +30,9 @@ public class CourseStartTimeMenuChat implements MenuChat {
         try {
             SendMessage message = new SendMessage();
             message.setChatId(String.valueOf(chatId));
-            message.setText(courseText + "\nWhat time should the course start?");
+            message.setText(courseText + "Day 1 — What time should it start?");
             message.setParseMode("HTML");
-            message.setReplyMarkup(new CourseStartTimeMenu(isoDate, courseIndex).getMenu());
+            message.setReplyMarkup(new CourseStartTimeMenu(isoDate, courseIndex, 1, "", "").getMenu());
 
             var response = telegram.execute(message);
             this.messageId = response.getMessageId();

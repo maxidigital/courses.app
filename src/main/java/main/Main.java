@@ -14,6 +14,7 @@ import main.courses.menuchats.TelegramChatMain;
 import main.reminder.DailyReminderService;
 import main.server.ConfirmHandler;
 import main.server.MainHandler;
+import main.server.StaticHandler;
 import main.sheets.SettingsService;
 import main.sheets.medical.MedicalFormsService;
 import org.telegram.telegrambots.meta.api.objects.Update;
