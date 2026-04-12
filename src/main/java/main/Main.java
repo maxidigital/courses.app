@@ -48,7 +48,9 @@ public class Main implements TelegramAdmin.Listener
         MedicalFormsService.getInstance().init();
         System.out.println("MedicalFormsService initialized");
         
-        new DailyReminderService().start();
+        DailyReminderService reminderService = new DailyReminderService();
+        reminderService.start();
+        TelegramChatMain.setReminderService(reminderService);
 
         TelegramCenter.getInstance().toRoot("🌊 Starting Freedive Mallorca Bot 🤿✨");
     }

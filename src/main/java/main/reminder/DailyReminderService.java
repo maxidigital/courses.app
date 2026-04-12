@@ -40,7 +40,7 @@ public class DailyReminderService {
         return nextRun.toEpochSecond() - now.toEpochSecond();
     }
 
-    private void checkAndNotify() {
+    public void checkAndNotify() {
         try {
             LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(2);
             String isoDate = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);

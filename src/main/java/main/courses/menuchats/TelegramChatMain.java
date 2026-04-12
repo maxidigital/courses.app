@@ -346,6 +346,12 @@ public class TelegramChatMain implements TelegramChat
         telegram.execute(edit);
     }
 
+    private static main.reminder.DailyReminderService reminderService;
+
+    public static void setReminderService(main.reminder.DailyReminderService service) {
+        reminderService = service;
+    }
+
     private boolean find = false;
     
     /**
@@ -388,6 +394,11 @@ public class TelegramChatMain implements TelegramChat
             } else if (messageText.equals("/courses")) {
                 MenuChat menuChat = createCoursesMenu(telegram, chatId);
                 menuChat.reply();
+            } else if (messageText.equals("/check48")) {
+                if (reminderService != null) {
+                    telegram.sendTextMessage(chatId, "🔍 Checking courses in 48h...");
+                    new Thread(reminderService::checkAndNotify).start();
+                }
             } else {
                 this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);
             }
