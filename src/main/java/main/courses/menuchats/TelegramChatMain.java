@@ -173,8 +173,9 @@ public class TelegramChatMain implements TelegramChat
         long messageId = callbackQuery.getMessage().getMessageId();
 
         try {
+            String originalText = ((org.telegram.telegrambots.meta.api.objects.Message) callbackQuery.getMessage()).getText();
             telegram.editMessage(chatId, messageId,
-                callbackQuery.getMessage().getText() + "\n\n✅ Start time: <b>" + timeStr + "</b>");
+                originalText + "\n\n✅ Start time: <b>" + timeStr + "</b>");
             // TODO: ask next question
         } catch (TelegramApiException ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
