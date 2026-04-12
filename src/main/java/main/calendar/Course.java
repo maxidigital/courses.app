@@ -17,17 +17,18 @@ public class Course {
     private String type;
     private EventStudents eventStudents;
     private String description;
+    private final XEvent xEvent;
 
-    /**
-     * 
-     * @param date
-     * @param type 
-     */
     public Course(XEvent event) {
         this.date = event.getStart();
         this.type = event.getCalendarName();
         this.eventStudents = new EventStudents(event.getDescription());
         this.description = event.getDescription().getCleanedText();
+        this.xEvent = event;
+    }
+
+    public XEvent getXEvent() {
+        return xEvent;
     }
 
     public XDate getDate() {

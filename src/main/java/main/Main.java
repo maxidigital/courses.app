@@ -7,9 +7,13 @@ import blue.underwater.commons.logging.XLogger;
 import blue.underwater.telegram.admin.TelegramAdmin;
 import blue.underwater.telegram.admin.TelegramChat;
 import java.io.IOException;
+import com.sun.net.httpserver.HttpServer;
+import java.net.InetSocketAddress;
 import main.contacts.ContactsService;
 import main.courses.menuchats.TelegramChatMain;
 import main.reminder.DailyReminderService;
+import main.server.ConfirmHandler;
+import main.server.MainHandler;
 import main.sheets.SettingsService;
 import main.sheets.medical.MedicalFormsService;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -54,6 +58,13 @@ public class Main implements TelegramAdmin.Listener
         DailyReminderService reminderService = new DailyReminderService();
         reminderService.start();
         TelegramChatMain.setReminderService(reminderService);
+
+        int port = Integer.parseInt(System.getProperty("server.port", System.getenv().getOrDefault("PORT", "8080")));
+        HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext("/", new MainHandler());
+        server.createContext("/confirm", new ConfirmHandler());
+        server.start();
+        XLogger.info(this, "HTTP server started on port %d", port);
 
         TelegramCenter.getInstance().toRoot("🌊 Starting Freedive Mallorca Bot 🤿✨");
     }

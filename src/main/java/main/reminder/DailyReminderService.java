@@ -25,7 +25,6 @@ public class DailyReminderService {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public void start() {
-        checkAndNotify();
         long initialDelay = computeInitialDelay();
         scheduler.scheduleAtFixedRate(this::checkAndNotify, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
         XLogger.info(this, "DailyReminderService started, next run in %d seconds", initialDelay);
@@ -88,7 +87,7 @@ public class DailyReminderService {
         if (!students.isEmpty()) {
             sb.append(String.format("\n<b>%d participant%s:</b>\n", students.size(), students.size() == 1 ? "" : "s"));
             for (Student student : students) {
-                sb.append("• ").append(student.getEmail()).append("\n");
+                sb.append("• ").append(student.toString()).append("\n");
             }
         }
         sb.append("\n");

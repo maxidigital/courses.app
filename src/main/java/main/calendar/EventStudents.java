@@ -51,11 +51,24 @@ public final class EventStudents implements Serializable, Iterable<Student> {
             return;
         }
         
-        String[] emails = EmailExtractor.extractEmails(eventDescription.getRawText());
-        
+        String rawText = eventDescription.getRawText();
+        String[] emails = EmailExtractor.extractEmails(rawText);
+
         for (String email : emails) {
-            addStudent(new Student(email));
-        }        
+            Student student = new Student(email);
+            // Find the line containing this email and check for state markers
+            for (String line : rawText.split("\n")) {
+                if (line.contains("+++" + email)) {
+                    if (line.contains(ConfirmationState.CONFIRMED.marker)) {
+                        student.setState(ConfirmationState.CONFIRMED);
+                    } else if (line.contains(ConfirmationState.PENDING.marker)) {
+                        student.setState(ConfirmationState.PENDING);
+                    }
+                    break;
+                }
+            }
+            addStudent(student);
+        }
     }
     
     /**

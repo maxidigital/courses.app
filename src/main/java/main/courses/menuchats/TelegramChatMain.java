@@ -300,12 +300,16 @@ public class TelegramChatMain implements TelegramChat
             for (main.calendar.Student student : course.getEventStudents().getStudents()) {
                 String email = student.getEmail();
                 String firstName = resolveFirstName(email);
-                String html = CourseReminderEmailBuilder.build(firstName, day1, day2, timeStr, location, mapsUrl);
+                String appUrl = System.getProperty("app.url", "");
+                String token = blue.underwater.calendar.admin.event.Tools.emailHash(email);
+                String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&token=" + token;
+                String html = CourseReminderEmailBuilder.build(firstName, day1, day2, timeStr, location, mapsUrl, confirmationUrl);
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
                     .setSubject("Your Freediver Course – See You Soon!")
                     .setHtmlContent(html);
                 EmailAdmin.getInstance().send(msg);
+                CalendarService.getInstance().markStudentAsPending(course.getXEvent(), email);
                 sent++;
             }
 

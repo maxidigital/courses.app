@@ -5,6 +5,7 @@
 package main.calendar;
 
 import blue.underwater.calendar.admin.GoogleCalendarAdmin;
+import blue.underwater.calendar.admin.event.ConfirmationState;
 import blue.underwater.calendar.admin.event.XEvent;
 import blue.underwater.commons.datetime.XDate;
 import java.io.IOException;
@@ -53,6 +54,37 @@ public class CalendarService {
         }
     }
     
+    public void markStudentAsConfirmed(XEvent event, String email) {
+        try {
+            String raw = event.getDescription().getRawText();
+            String updated = raw.replaceAll(
+                "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
+                "$1  " + ConfirmationState.CONFIRMED.marker
+            );
+            event.getDescription().setText(updated);
+            admin.updateEvent(event);
+            XLogger.info(this, "Marked %s as CONFIRMED in calendar", email);
+        } catch (IOException | GeneralSecurityException e) {
+            XLogger.severe(this, "Failed to update calendar for %s: %s", email, e.getMessage());
+        }
+    }
+
+    public void markStudentAsPending(XEvent event, String email) {
+        try {
+            String raw = event.getDescription().getRawText();
+            // Remove any existing state marker on this email's line, then add #PENDING#
+            String updated = raw.replaceAll(
+                "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
+                "$1  " + ConfirmationState.PENDING.marker
+            );
+            event.getDescription().setText(updated);
+            admin.updateEvent(event);
+            XLogger.info(this, "Marked %s as PENDING in calendar", email);
+        } catch (IOException | GeneralSecurityException e) {
+            XLogger.severe(this, "Failed to update calendar for %s: %s", email, e.getMessage());
+        }
+    }
+
     public List<Course> getCoursesForDay(XDate date) throws IOException {
         List<Course> courses = new ArrayList<>();
         

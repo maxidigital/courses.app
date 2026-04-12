@@ -17,7 +17,8 @@ public class CourseReminderEmailBuilder {
      * @param day1MapsUrl   Google Maps URL for Day 1 location
      */
     public static String build(String firstName, String day1, String day2,
-                               String startTime, String day1Location, String day1MapsUrl) {
+                               String startTime, String day1Location, String day1MapsUrl,
+                               String confirmationUrl) {
         return "<!DOCTYPE html>\n"
             + "<html lang=\"en\">\n"
             + "<head>\n"
@@ -73,6 +74,10 @@ public class CourseReminderEmailBuilder {
             + "  <p>We provide all the professional equipment you'll need, so just bring your curiosity and your smile!</p>\n"
             + "\n"
             + "  <p>If you have any questions at all, please just let me know. We are looking forward to seeing you soon in the water!</p>\n"
+            + "\n"
+            + "  <p style=\"text-align:center;margin-top:32px;\">"
+            + "<a href=\"" + confirmationUrl + "\" style=\"background:#0077b6;color:white;padding:12px 28px;"
+            + "border-radius:8px;text-decoration:none;font-weight:bold;\">✅ Confirm my spot</a></p>\n"
             + "\n"
             + "  <div class=\"footer\">\n"
             + "    Saludos,<br>\n"
