@@ -63,6 +63,7 @@ public class Main implements TelegramAdmin.Listener
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", new MainHandler());
         server.createContext("/confirm", new ConfirmHandler());
+        server.createContext("/static/", new StaticHandler());
         server.start();
         XLogger.info(this, "HTTP server started on port %d", port);
 
