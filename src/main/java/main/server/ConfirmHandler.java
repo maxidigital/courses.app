@@ -78,8 +78,8 @@ public class ConfirmHandler implements HttpHandler {
         + ".card{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.92);border-radius:16px;"
         + "box-shadow:0 4px 24px rgba(0,0,0,0.25);width:100%;max-width:420px;}"
         + "img.logo{width:min(200px,70%);margin-bottom:24px;}"
-        + "h1{color:#0077b6;font-size:clamp(1.1em,4vw,1.4em);margin-bottom:16px;line-height:1.3;}"
-        + "p{color:#444;line-height:1.6;font-size:clamp(0.95em,3.5vw,1em);}"
+        + "h1{color:#0077b6;font-size:clamp(1.2em,5vw,1.5em);margin-bottom:16px;line-height:1.3;}"
+        + "p{color:#444;line-height:1.6;font-size:clamp(1em,4vw,1.05em);}"
         + ".emoji{font-size:clamp(2.5em,8vw,3em);margin-bottom:16px;}"
         + "h1.err{color:#555;}"
         + "@media(prefers-color-scheme:dark){"
@@ -95,8 +95,9 @@ public class ConfirmHandler implements HttpHandler {
     private String successPage(String name) {
         return PAGE_HEAD
             + "<div class=\"emoji\">✅</div>"
-            + "<h1>Perfect, thanks for confirming, " + name + "!</h1>"
-            + "<p>Everything is set — see you very soon in the water 🌊</p>"
+            + "<h1>Fantástico, thanks for confirming, " + name + "!</h1>"
+            + "<p>Everything is set.</p>"
+            + "<p>See you very soon in the water.</p>"
             + "</div></body></html>";
     }
 

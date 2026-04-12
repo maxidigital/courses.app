@@ -107,6 +107,7 @@ public class CourseReminderEmailBuilder {
             + "  <meta charset=\"UTF-8\" />\n"
             + "  <style>\n"
             + "    body { font-family: Arial, sans-serif; color: #222; line-height: 1.7; padding: 20px; max-width: 600px; }\n"
+            + "    p { text-align: justify; }\n"
             + "    .day-title { font-weight: bold; color: #0077b6; font-size: 1.05em; margin-top: 24px; }\n"
             + "    .detail { margin-left: 16px; margin-top: 4px; }\n"
             + "    .section-title { font-weight: bold; margin-top: 24px; }\n"
@@ -120,10 +121,12 @@ public class CourseReminderEmailBuilder {
     }
 
     private static String confirmBlock(String confirmationUrl) {
-        return "  <p>Just click below so I know you've received everything and we're all set 👍</p>\n"
+        return "  <hr style=\"border:none;border-top:1px solid #ddd;margin:24px 0;\">\n"
+            + "  <p>Just click below so I know you've received everything and we're all set 👍</p>\n"
             + "  <p style=\"text-align:center;margin-top:16px;\">"
             + "<a href=\"" + confirmationUrl + "\" style=\"background:#0077b6;color:white;padding:12px 28px;"
             + "border-radius:8px;text-decoration:none;font-weight:bold;\">Everything looks good 👍</a></p>\n"
+            + "  <hr style=\"border:none;border-top:1px solid #ddd;margin:24px 0;\">\n"
             + "\n";
     }
 
