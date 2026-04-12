@@ -61,13 +61,21 @@ public class DailyReminderService {
             if (courses.size() == 1) {
                 Course course = courses.get(0);
                 String courseText = buildCourseDetails(course, formattedDate);
-                TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                    new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, courseText, isoDate, 0)
-                );
+                if (requesterChatId > 0) {
+                    new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId, courseText, isoDate, 0).reply();
+                } else {
+                    TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                        new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, courseText, isoDate, 0)
+                    );
+                }
             } else {
-                TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                    new CourseSelectionMenuChat(TelegramCenter.getInstance().getMain(), chatId, isoDate, formattedDate, courses)
-                );
+                if (requesterChatId > 0) {
+                    new CourseSelectionMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId, isoDate, formattedDate, courses).reply();
+                } else {
+                    TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                        new CourseSelectionMenuChat(TelegramCenter.getInstance().getMain(), chatId, isoDate, formattedDate, courses)
+                    );
+                }
             }
 
         } catch (IOException e) {

@@ -20,6 +20,7 @@ import main.courses.menus.CourseLocationMenu;
 import main.courses.menus.CourseStartTimeMenu;
 import main.reminder.CourseReminderEmailBuilder;
 import main.reminder.DailyReminderService;
+import main.telegram.TelegramCenter;
 import blue.underwater.email.admin.Email;
 import blue.underwater.email.admin.EmailAdmin;
 import blue.underwater.email.admin.EmailBuilder;
@@ -287,6 +288,15 @@ public class TelegramChatMain implements TelegramChat
             return;
         }
 
+        if (!TelegramCenter.getInstance().isAdmin(chatId) && !blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId)) {
+            try {
+                telegram.editMessage(chatId, messageId, "❌ Not authorized");
+            } catch (TelegramApiException ex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+
         try {
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
@@ -399,7 +409,9 @@ public class TelegramChatMain implements TelegramChat
                 MenuChat menuChat = createCoursesMenu(telegram, chatId);
                 menuChat.reply();
             } else if (messageText.equals("/check48")) {
-                if (reminderService != null) {
+                if (!TelegramCenter.getInstance().isAdmin(chatId) && !blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId)) {
+                    this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);
+                } else if (reminderService != null) {
                     telegram.sendTextMessage(chatId, "🔍 Checking courses in 48h...");
                     new Thread(() -> reminderService.checkAndNotify(chatId)).start();
                 }
