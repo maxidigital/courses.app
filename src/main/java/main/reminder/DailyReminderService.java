@@ -22,6 +22,7 @@ public class DailyReminderService {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public void start() {
+        checkAndNotify();
         long initialDelay = computeInitialDelay();
         scheduler.scheduleAtFixedRate(this::checkAndNotify, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
         XLogger.info(this, "DailyReminderService started, next run in %d seconds", initialDelay);
