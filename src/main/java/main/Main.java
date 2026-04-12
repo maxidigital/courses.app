@@ -9,6 +9,7 @@ import blue.underwater.telegram.admin.TelegramChat;
 import java.io.IOException;
 import main.contacts.ContactsService;
 import main.courses.menuchats.TelegramChatMain;
+import main.reminder.DailyReminderService;
 import main.sheets.medical.MedicalFormsService;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -47,6 +48,8 @@ public class Main implements TelegramAdmin.Listener
         MedicalFormsService.getInstance().init();
         System.out.println("MedicalFormsService initialized");
         
+        new DailyReminderService().start();
+
         TelegramCenter.getInstance().toRoot("🌊 Starting Freedive Mallorca Bot 🤿✨");
     }
 
