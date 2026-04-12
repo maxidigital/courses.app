@@ -5,21 +5,28 @@
     <artifactId>courses.app</artifactId>
     <version>1.12</version>
     <packaging>jar</packaging>
+    <repositories>
+        <repository>
+            <id>github-underwater</id>
+            <url>https://maven.pkg.github.com/maxidigital/underwater</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>telegram.admin</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>sheets.admin</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>calendar.admin</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <!-- Uncomment for testing if needed
         <dependency>
@@ -32,7 +39,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>email.admin</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
     </dependencies>
     <properties>
