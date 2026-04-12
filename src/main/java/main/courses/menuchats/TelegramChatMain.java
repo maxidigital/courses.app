@@ -71,6 +71,12 @@ public class TelegramChatMain implements TelegramChat
             return;
         }
 
+        // Check if this is a course start time callback
+        if (callbackData != null && callbackData.startsWith("course_time:")) {
+            handleCourseTimeCallback(callbackQuery);
+            return;
+        }
+
         //Optional<MenuChat> menu = ActiveMenus.getInstance().findMenu(messageId);
         Optional<MenuChat> menu = findMenu(messageId);
         if (menu.isPresent()) {
@@ -156,6 +162,22 @@ public class TelegramChatMain implements TelegramChat
                     Logger.getLogger(TelegramChatMain.class.getName()).log(Level.WARNING, "Contact not found for email: " + email);
                 }
             }
+        }
+    }
+
+    private void handleCourseTimeCallback(CallbackQuery callbackQuery) {
+        // callback format: course_time:DATE:HOUR  e.g. course_time:2026-04-14:9
+        String[] parts = callbackQuery.getData().split(":");
+        String hour = parts[parts.length - 1]; // "9" or "10"
+        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        long messageId = callbackQuery.getMessage().getMessageId();
+
+        try {
+            telegram.editMessage(chatId, messageId,
+                callbackQuery.getMessage().getText() + "\n\n✅ Start time: <b>" + timeStr + "</b>");
+            // TODO: ask next question
+        } catch (TelegramApiException ex) {
+            Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import main.calendar.CalendarService;
 import main.calendar.Course;
+import main.courses.menuchats.CourseStartTimeMenuChat;
 import main.telegram.TelegramCenter;
 
 public class DailyReminderService {
@@ -55,7 +56,10 @@ public class DailyReminderService {
                 msg.append("• ").append(course.toString()).append("\n\n");
             }
 
-            TelegramCenter.getInstance().toAdmin("%s", msg.toString());
+            String messageText = msg.toString();
+            TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, messageText, isoDate)
+            );
 
         } catch (IOException e) {
             XLogger.severe(this, "DailyReminderService error: %s", e.getMessage());
