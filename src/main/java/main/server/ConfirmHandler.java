@@ -61,19 +61,25 @@ public class ConfirmHandler implements HttpHandler {
         }
     }
 
+    private static final String PAGE_HEAD =
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
+        + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+        + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
+        + "<title>Freedive Mallorca</title>"
+        + "<style>body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
+        + "min-height:100vh;margin:0;background:#f0f8ff;}"
+        + ".card{text-align:center;padding:48px 40px;background:white;border-radius:16px;"
+        + "box-shadow:0 4px 20px rgba(0,119,182,0.1);max-width:420px;}"
+        + "img.logo{width:180px;margin-bottom:24px;}"
+        + "h1{color:#0077b6;font-size:1.4em;margin-bottom:16px;}"
+        + "p{color:#444;line-height:1.6;}"
+        + ".emoji{font-size:3em;margin-bottom:16px;}"
+        + "h1.err{color:#555;font-size:1.2em;}"
+        + "</style></head><body><div class=\"card\">"
+        + "<img class=\"logo\" src=\"https://freedive-mallorca.com/wp-content/uploads/2021/05/LOGO-Blanco-pagina-2-e1620149776443.png\" alt=\"Freedive Mallorca\">";
+
     private String successPage() {
-        return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-            + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-            + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
-            + "<title>Freedive Mallorca</title>"
-            + "<style>body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
-            + "min-height:100vh;margin:0;background:#f0f8ff;}"
-            + ".card{text-align:center;padding:48px 40px;background:white;border-radius:16px;"
-            + "box-shadow:0 4px 20px rgba(0,119,182,0.1);max-width:420px;}"
-            + "h1{color:#0077b6;font-size:1.4em;margin-bottom:16px;}"
-            + "p{color:#444;line-height:1.6;}"
-            + ".emoji{font-size:3em;margin-bottom:16px;}</style></head>"
-            + "<body><div class=\"card\">"
+        return PAGE_HEAD
             + "<div class=\"emoji\">✅</div>"
             + "<h1>Thank you! Your spot is confirmed.</h1>"
             + "<p>We look forward to seeing you in the water!</p>"
@@ -81,18 +87,9 @@ public class ConfirmHandler implements HttpHandler {
     }
 
     private String errorPage(String message) {
-        return "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-            + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
-            + "<title>Freedive Mallorca</title>"
-            + "<style>body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
-            + "min-height:100vh;margin:0;background:#f0f8ff;}"
-            + ".card{text-align:center;padding:48px 40px;background:white;border-radius:16px;"
-            + "box-shadow:0 4px 20px rgba(0,119,182,0.1);max-width:420px;}"
-            + "h1{color:#555;font-size:1.2em;}"
-            + ".emoji{font-size:3em;margin-bottom:16px;}</style></head>"
-            + "<body><div class=\"card\">"
+        return PAGE_HEAD
             + "<div class=\"emoji\">❌</div>"
-            + "<h1>" + message + "</h1>"
+            + "<h1 class=\"err\">" + message + "</h1>"
             + "</div></body></html>";
     }
 }

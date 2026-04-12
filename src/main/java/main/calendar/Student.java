@@ -33,18 +33,7 @@ public final class Student {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        // Get email username (part before @)
-        String username = email;
-        if (email.contains("@")) {
-            username = email.substring(0, email.indexOf('@'));
-        }
-
-        // Capitalize first letter of username
-        if (!username.isEmpty()) {
-            username = Character.toUpperCase(username.charAt(0)) + username.substring(1);
-        }
-
-        sb.append(username);
+        sb.append(email);
 
         // Add status indicator if not NONE
         if (state != ConfirmationState.NONE) {
