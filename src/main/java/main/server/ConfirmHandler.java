@@ -67,28 +67,36 @@ public class ConfirmHandler implements HttpHandler {
 
     private static final String PAGE_HEAD =
         "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\">"
-        + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
+        + "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, maximum-scale=1\">"
         + "<link rel=\"icon\" href=\"https://www.freedive-mallorca.com/favicon.ico\">"
         + "<title>Freedive Mallorca</title>"
         + "<style>"
+        + "*{box-sizing:border-box;}"
         + "body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
-        + "min-height:100vh;margin:0;"
+        + "min-height:100vh;margin:0;padding:16px;"
         + "background:url('/static/bg.jpg') center/cover no-repeat fixed;}"
-        + ".card{text-align:center;padding:48px 40px;background:rgba(255,255,255,0.92);border-radius:16px;"
-        + "box-shadow:0 4px 24px rgba(0,0,0,0.25);max-width:420px;}"
-        + "img.logo{width:200px;margin-bottom:24px;}"
-        + "h1{color:#0077b6;font-size:1.4em;margin-bottom:16px;}"
-        + "p{color:#444;line-height:1.6;}"
-        + ".emoji{font-size:3em;margin-bottom:16px;}"
-        + "h1.err{color:#555;font-size:1.2em;}"
+        + ".card{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.92);border-radius:16px;"
+        + "box-shadow:0 4px 24px rgba(0,0,0,0.25);width:100%;max-width:420px;}"
+        + "img.logo{width:min(200px,70%);margin-bottom:24px;}"
+        + "h1{color:#0077b6;font-size:clamp(1.1em,4vw,1.4em);margin-bottom:16px;line-height:1.3;}"
+        + "p{color:#444;line-height:1.6;font-size:clamp(0.95em,3.5vw,1em);}"
+        + ".emoji{font-size:clamp(2.5em,8vw,3em);margin-bottom:16px;}"
+        + "h1.err{color:#555;}"
+        + "@media(prefers-color-scheme:dark){"
+        + "body{background:url('/static/bg.jpg') center/cover no-repeat fixed;}"
+        + ".card{background:rgba(30,30,30,0.93);}"
+        + "h1{color:#4db8ff;}"
+        + "p{color:#ccc;}"
+        + "h1.err{color:#aaa;}"
+        + "}"
         + "</style></head><body><div class=\"card\">"
         + "<img class=\"logo\" src=\"/static/logo.png\" alt=\"Freedive Mallorca\">";
 
     private String successPage(String name) {
         return PAGE_HEAD
             + "<div class=\"emoji\">✅</div>"
-            + "<h1>Thank you, " + name + "!</h1>"
-            + "<p>Your spot is confirmed. We look forward to seeing you in the water!</p>"
+            + "<h1>Perfect, thanks for confirming, " + name + "!</h1>"
+            + "<p>Everything is set — see you very soon in the water 🌊</p>"
             + "</div></body></html>";
     }
 

@@ -256,7 +256,7 @@ public class TelegramChatMain implements TelegramChat
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
-            int totalDays = CourseType.getDays(course.getType());
+            int totalDays = CourseType.fromName(course.getType()).days;
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
             if (day < totalDays) {
@@ -325,7 +325,9 @@ public class TelegramChatMain implements TelegramChat
             List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
-            int totalDays = CourseType.getDays(course.getType());
+            CourseType courseType = CourseType.fromName(course.getType());
+            int totalDays = courseType.days;
+            String duration = courseType.duration;
 
             LocalDate day1Date = LocalDate.parse(isoDate);
             String[] dayFormatted = new String[totalDays];
@@ -348,16 +350,16 @@ public class TelegramChatMain implements TelegramChat
                 String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&token=" + token;
                 String html;
                 if (totalDays == 1) {
-                    html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], confirmationUrl);
+                    html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], duration, confirmationUrl);
                 } else if (totalDays == 2) {
                     html = CourseReminderEmailBuilder.build2Day(firstName,
                         dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
-                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1], confirmationUrl);
+                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1], duration, confirmationUrl);
                 } else {
                     html = CourseReminderEmailBuilder.build3Day(firstName,
                         dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
                         dayFormatted[1], timeStrs[1], locNames[1], locUrls[1],
-                        dayFormatted[2], timeStrs[2], locNames[2], locUrls[2], confirmationUrl);
+                        dayFormatted[2], timeStrs[2], locNames[2], locUrls[2], duration, confirmationUrl);
                 }
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
