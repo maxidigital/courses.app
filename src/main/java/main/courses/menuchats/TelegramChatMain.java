@@ -274,7 +274,8 @@ public class TelegramChatMain implements TelegramChat
                     "\n\nDay " + nextDay + " — What time should it start?",
                     new CourseStartTimeMenu(isoDate, courseIndex, nextDay, times, newLocs).getMenu());
             } else {
-                int participantCount = course.getEventStudents().getStudentCount();
+                long participantCount = course.getEventStudents().getStudents().stream()
+                    .filter(s -> !s.isPending() && !s.isConfirmed()).count();
                 editMessageWithMenu(messageId,
                     courseText + buildDaySummary(times, newLocs, isoDate) +
                     "\n\nSend confirmation emails to <b>" + participantCount +
