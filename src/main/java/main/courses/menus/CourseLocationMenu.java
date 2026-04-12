@@ -8,10 +8,17 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 public class CourseLocationMenu implements InlineMenu {
 
     public static final String[] LOCATIONS = {
-        "Port de Sóller",
+        "Cala Sant Vicent",
         "Cala Deia",
-        "Puerto Portals",
-        "Cala Llombards"
+        "Puerto de Pollença",
+        "Puerto de Andratx"
+    };
+
+    public static final String[] LOCATION_MAPS_URLS = {
+        "https://www.google.com/maps/search/?api=1&query=Cala+Sant+Vicent+Mallorca",
+        "https://www.google.com/maps/search/?api=1&query=Cala+Deia+Mallorca",
+        "https://www.google.com/maps/search/?api=1&query=Puerto+de+Pollença+Mallorca",
+        "https://www.google.com/maps/search/?api=1&query=Puerto+de+Andratx+Mallorca"
     };
 
     private final String isoDate;

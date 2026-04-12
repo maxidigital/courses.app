@@ -13,9 +13,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import main.calendar.CalendarService;
 import main.calendar.Course;
+import main.contacts.Contact;
+import main.contacts.ContactsService;
+import main.courses.menus.CourseConfirmMenu;
 import main.courses.menus.CourseLocationMenu;
 import main.courses.menus.CourseStartTimeMenu;
+import main.reminder.CourseReminderEmailBuilder;
 import main.reminder.DailyReminderService;
+import blue.underwater.email.admin.Email;
+import blue.underwater.email.admin.EmailAdmin;
+import blue.underwater.email.admin.EmailBuilder;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -92,6 +99,10 @@ public class TelegramChatMain implements TelegramChat
         }
         if (callbackData != null && callbackData.startsWith("course_remind_loc:")) {
             handleCourseRemindLocCallback(callbackQuery);
+            return;
+        }
+        if (callbackData != null && (callbackData.startsWith("course_confirm_send:") || callbackData.startsWith("course_confirm_cancel:"))) {
+            handleCourseConfirmCallback(callbackQuery);
             return;
         }
 
@@ -241,16 +252,88 @@ public class TelegramChatMain implements TelegramChat
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
             int participantCount = course.getEventStudents().getStudentCount();
+            editMessageWithMenu(messageId,
+                courseText +
+                "⏰ Start time: <b>" + timeStr + "</b>\n" +
+                "📍 Location: <b>" + location + "</b>\n\n" +
+                "Send confirmation emails to <b>" + participantCount +
+                " participant" + (participantCount == 1 ? "" : "s") + "</b>?",
+                new CourseConfirmMenu(isoDate, courseIndex, hour, locIndex).getMenu());
+        } catch (Exception ex) {
+            Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // course_confirm_send/cancel:DATE:INDEX:HOUR:LOC
+    private void handleCourseConfirmCallback(CallbackQuery callbackQuery) {
+        String callbackData = callbackQuery.getData();
+        boolean sending = callbackData.startsWith("course_confirm_send:");
+        String[] parts = callbackData.split(":");
+        String isoDate = parts[1];
+        int courseIndex = Integer.parseInt(parts[2]);
+        String hour = parts[3];
+        int locIndex = Integer.parseInt(parts[4]);
+        String timeStr = hour.equals("9") ? "9:00 AM" : "10:00 AM";
+        String location = CourseLocationMenu.LOCATIONS[locIndex];
+        String mapsUrl = CourseLocationMenu.LOCATION_MAPS_URLS[locIndex];
+        long messageId = callbackQuery.getMessage().getMessageId();
+
+        if (!sending) {
+            try {
+                telegram.editMessage(chatId, messageId, "❌ <b>Action cancelled</b>");
+            } catch (TelegramApiException ex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+
+        try {
+            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            if (courseIndex >= courses.size()) return;
+            Course course = courses.get(courseIndex);
+
+            LocalDate day1Date = LocalDate.parse(isoDate);
+            String day1 = day1Date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"));
+            String day2 = day1Date.plusDays(1).format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"));
+
+            int sent = 0;
+            for (main.calendar.Student student : course.getEventStudents().getStudents()) {
+                String email = student.getEmail();
+                String firstName = resolveFirstName(email);
+                String html = CourseReminderEmailBuilder.build(firstName, day1, day2, timeStr, location, mapsUrl);
+                Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
+                    .addBcc("info@freedive-mallorca.com")
+                    .setSubject("Your Freediver Course – See You Soon!")
+                    .setHtmlContent(html);
+                EmailAdmin.getInstance().send(msg);
+                sent++;
+            }
+
+            String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
             telegram.editMessage(chatId, messageId,
                 courseText +
                 "⏰ Start time: <b>" + timeStr + "</b>\n" +
                 "📍 Location: <b>" + location + "</b>\n\n" +
-                "✅ <b>Ready to send emails to " + participantCount +
-                " participant" + (participantCount == 1 ? "" : "s") + "</b>");
-            // TODO: send confirmation emails
+                "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>");
+
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                telegram.editMessage(chatId, messageId, "❌ <b>Failed to send emails</b>: " + ex.getMessage());
+            } catch (TelegramApiException tex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, tex);
+            }
         }
+    }
+
+    private String resolveFirstName(String email) {
+        Contact contact = ContactsService.getInstance().findByEmail(email);
+        if (contact != null && contact.getFistName() != null && !contact.getFistName().trim().isEmpty()) {
+            return contact.getFistName().trim();
+        }
+        String prefix = email.contains("@") ? email.substring(0, email.indexOf('@')) : email;
+        return prefix.isEmpty() ? "there" : Character.toUpperCase(prefix.charAt(0)) + prefix.substring(1);
     }
 
     private void editMessageWithMenu(long messageId, String text, InlineKeyboardMarkup markup) throws TelegramApiException {
