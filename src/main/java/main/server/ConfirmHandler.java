@@ -99,7 +99,7 @@ public class ConfirmHandler implements HttpHandler {
         + "h1.err{color:#aaa;}"
         + "}"
         + "</style></head><body><div class=\"card\">"
-        + "<img class=\"logo\" src=\"/static/logo.png\" alt=\"Freedive Mallorca\">";
+        + "<a href=\"https://www.freedive-mallorca.com\"><img class=\"logo\" src=\"/static/logo.png\" alt=\"Freedive Mallorca\"></a>";
 
     private String successPage(String name) {
         return PAGE_HEAD

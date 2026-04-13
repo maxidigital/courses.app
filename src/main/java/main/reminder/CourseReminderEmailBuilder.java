@@ -3,7 +3,8 @@ package main.reminder;
 public class CourseReminderEmailBuilder {
 
     public static String build1Day(String firstName, String day1, String startTime,
-                                   String location, String mapsUrl, String duration, String confirmationUrl) {
+                                   String location, String mapsUrl, String duration, String confirmationUrl,
+                                   String day1Desc) {
         return head()
             + "  <p>Hi " + firstName + ",</p>\n"
             + "\n"
@@ -16,7 +17,7 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + location + "<br>\n"
             + "    <a href=\"" + mapsUrl + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll start with a theory session followed by your session in the water.\n"
+            + expectLine(day1Desc)
             + "  </div>\n"
             + "\n"
             + confirmBlock(confirmationUrl)
@@ -28,7 +29,8 @@ public class CourseReminderEmailBuilder {
     public static String build2Day(String firstName,
                                    String day1, String startTime1, String loc1, String url1,
                                    String day2, String startTime2, String loc2, String url2,
-                                   String duration, String confirmationUrl) {
+                                   String duration, String confirmationUrl,
+                                   String day1Desc, String day2Desc) {
         return head()
             + "  <p>Hi " + firstName + ",</p>\n"
             + "\n"
@@ -41,7 +43,7 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + loc1 + "<br>\n"
             + "    <a href=\"" + url1 + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime1 + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll start with a theory session (around 1.5–2 hours), followed by your first session in the water exploring duck-dives and body positioning.\n"
+            + expectLine(day1Desc)
             + "  </div>\n"
             + "\n"
             + "  <div class=\"day-title\">Day 2: " + day2 + "</div>\n"
@@ -49,7 +51,7 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + loc2 + "<br>\n"
             + "    <a href=\"" + url2 + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime2 + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll dive deeper into breathing techniques (Pranayamas) and safety procedures before heading back into the blue.\n"
+            + expectLine(day2Desc)
             + "  </div>\n"
             + "\n"
             + confirmBlock(confirmationUrl)
@@ -62,7 +64,8 @@ public class CourseReminderEmailBuilder {
                                    String day1, String startTime1, String loc1, String url1,
                                    String day2, String startTime2, String loc2, String url2,
                                    String day3, String startTime3, String loc3, String url3,
-                                   String duration, String confirmationUrl) {
+                                   String duration, String confirmationUrl,
+                                   String day1Desc, String day2Desc, String day3Desc) {
         return head()
             + "  <p>Hi " + firstName + ",</p>\n"
             + "\n"
@@ -75,7 +78,7 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + loc1 + "<br>\n"
             + "    <a href=\"" + url1 + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime1 + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll start with a theory session covering advanced freediving concepts, followed by your first water session.\n"
+            + expectLine(day1Desc)
             + "  </div>\n"
             + "\n"
             + "  <div class=\"day-title\">Day 2: " + day2 + "</div>\n"
@@ -83,7 +86,7 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + loc2 + "<br>\n"
             + "    <a href=\"" + url2 + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime2 + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll go deeper into breathing techniques (Pranayamas), equalization and safety procedures before heading into the blue.\n"
+            + expectLine(day2Desc)
             + "  </div>\n"
             + "\n"
             + "  <div class=\"day-title\">Day 3: " + day3 + "</div>\n"
@@ -91,13 +94,18 @@ public class CourseReminderEmailBuilder {
             + "    Location: " + loc3 + "<br>\n"
             + "    <a href=\"" + url3 + "\">📍 View on Google Maps</a><br>\n"
             + "    Time: " + startTime3 + " (approx. " + duration + ")<br>\n"
-            + "    What to expect: We'll consolidate everything with advanced dives, refinement of technique, and your final evaluation.\n"
+            + expectLine(day3Desc)
             + "  </div>\n"
             + "\n"
             + confirmBlock(confirmationUrl)
             + whatToBring()
             + tips()
             + footer();
+    }
+
+    private static String expectLine(String desc) {
+        if (desc == null || desc.trim().isEmpty()) return "";
+        return "    What to expect: " + desc + "\n";
     }
 
     private static String head() {
@@ -133,7 +141,7 @@ public class CourseReminderEmailBuilder {
         return "  <div class=\"section-title\">What to bring:</div>\n"
             + "  <ul>\n"
             + "    <li>👙 Swimsuit (to wear under the wetsuit)</li>\n"
-            + "    <li>Towel</li>\n"
+            + "    <li>🧴 Towel</li>\n"
             + "    <li>💧 Water to stay hydrated during the theory session</li>\n"
             + "  </ul>\n"
             + "\n";

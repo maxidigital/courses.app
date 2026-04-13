@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: Arial, sans-serif; color: #222; line-height: 1.7; padding: 20px; max-width: 600px; text-align: justify; }
+    .day-title { font-weight: bold; color: #0077b6; font-size: 1.05em; margin-top: 24px; text-align: left; }
+    .detail { margin-left: 16px; margin-top: 4px; }
+    .section-title { font-weight: bold; margin-top: 24px; text-align: left; }
+    ul { margin: 4px 0 0 16px; }
+    a { color: #0077b6; }
+    .footer { margin-top: 40px; color: #555; text-align: left; }
+  </style>
+</head>
+<body>
+
+  <p>Hi {{FIRST_NAME}},</p>
+
+  <p>We are excited to have you join us for your upcoming {{COURSE_TYPE}}.</p>
+
+  <p>Here are all the details for our days together:</p>
+
+  <!-- Repeat the day block for each day of the course -->
+  <div class="day-title">Day 1: {{DAY_1_DATE}}</div>
+  <div class="detail">
+    Location: {{DAY_1_LOCATION}}<br>
+    <a href="{{DAY_1_MAPS_URL}}">📍 View on Google Maps</a><br>
+    Time: {{DAY_1_START_TIME}} (approx. {{DURATION}})<br>
+    What to expect: {{DAY_1_DESCRIPTION}}
+  </div>
+
+  <div class="day-title">Day 2: {{DAY_2_DATE}}</div>
+  <div class="detail">
+    Location: {{DAY_2_LOCATION}}<br>
+    <a href="{{DAY_2_MAPS_URL}}">📍 View on Google Maps</a><br>
+    Time: {{DAY_2_START_TIME}} (approx. {{DURATION}})<br>
+    What to expect: {{DAY_2_DESCRIPTION}}
+  </div>
+
+  <!-- Day 3 — only for Advance Freediver Course -->
+  <div class="day-title">Day 3: {{DAY_3_DATE}}</div>
+  <div class="detail">
+    Location: {{DAY_3_LOCATION}}<br>
+    <a href="{{DAY_3_MAPS_URL}}">📍 View on Google Maps</a><br>
+    Time: {{DAY_3_START_TIME}} (approx. {{DURATION}})<br>
+    What to expect: {{DAY_3_DESCRIPTION}}
+  </div>
+
+  <hr style="border:none;border-top:1px solid #ddd;margin:24px 0;">
+  <p>Just click below so I know you've received everything and we're all set 👍</p>
+  <p style="text-align:center;margin-top:16px;">
+    <a href="{{CONFIRMATION_URL}}" style="background:#0077b6;color:white;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:bold;">Everything looks good ✅</a>
+  </p>
+  <hr style="border:none;border-top:1px solid #ddd;margin:24px 0;">
+
+  <div class="section-title">What to bring:</div>
+  <ul>
+    <li>👙 Swimsuit (to wear under the wetsuit)</li>
+    <li>🧴 Towel</li>
+    <li>💧 Water to stay hydrated during the theory session</li>
+  </ul>
+
+  <div class="section-title">A few tips for the best experience:</div>
+  <ul>
+    <li>Try to avoid alcohol the night before and coffee in the morning.</li>
+    <li>A light breakfast is recommended so you don't freedive on a full stomach.</li>
+    <li>Relax! There is no performance pressure — our focus is entirely on your comfort and safety.</li>
+  </ul>
+
+  <p>We provide all the professional equipment you'll need, so just bring your curiosity and your smile!</p>
+
+  <p>If you have any questions at all, please just let me know. We are looking forward to seeing you soon in the water!</p>
+
+  <div class="footer">
+    Saludos,<br>
+    <strong>Team Freedive Mallorca</strong>
+  </div>
+
+</body>
+</html>

@@ -364,16 +364,22 @@ public class TelegramChatMain implements TelegramChat
                 String confirmationUrl = appUrl + "/confirm?date=" + isoDate + "&event=" + java.net.URLEncoder.encode(course.getXEvent().getId(), "UTF-8") + "&token=" + token;
                 String html;
                 if (totalDays == 1) {
-                    html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], duration, confirmationUrl);
+                    html = CourseReminderEmailBuilder.build1Day(firstName, dayFormatted[0], timeStrs[0], locNames[0], locUrls[0], duration, confirmationUrl,
+                        courseType.getDayDescription(0, ""));
                 } else if (totalDays == 2) {
                     html = CourseReminderEmailBuilder.build2Day(firstName,
                         dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
-                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1], duration, confirmationUrl);
+                        dayFormatted[1], timeStrs[1], locNames[1], locUrls[1], duration, confirmationUrl,
+                        courseType.getDayDescription(0, ""),
+                        courseType.getDayDescription(1, ""));
                 } else {
                     html = CourseReminderEmailBuilder.build3Day(firstName,
                         dayFormatted[0], timeStrs[0], locNames[0], locUrls[0],
                         dayFormatted[1], timeStrs[1], locNames[1], locUrls[1],
-                        dayFormatted[2], timeStrs[2], locNames[2], locUrls[2], duration, confirmationUrl);
+                        dayFormatted[2], timeStrs[2], locNames[2], locUrls[2], duration, confirmationUrl,
+                        courseType.getDayDescription(0, ""),
+                        courseType.getDayDescription(1, ""),
+                        courseType.getDayDescription(2, ""));
                 }
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
