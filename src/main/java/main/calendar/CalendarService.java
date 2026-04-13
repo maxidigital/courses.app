@@ -112,9 +112,9 @@ public class CalendarService {
                     "$1  " + ConfirmationState.PENDING.marker
                 );
             }
-            String block = "\n─────────────────────\n#DETAILS#{\n" + details + "\n}";
+            String block = "\n\n#DETAILS#{\n" + details + "\n}";
             if (updated.contains("#DETAILS#{")) {
-                updated = updated.replaceAll("(?s)\n?─+\n#DETAILS#\\{.*?\\}", block);
+                updated = updated.replaceAll("(?s)\n{1,2}#DETAILS#\\{.*?\\}", block);
             } else {
                 updated = updated + block;
             }
@@ -129,10 +129,10 @@ public class CalendarService {
     public void setEventDetails(XEvent event, String details) {
         try {
             String raw = event.getDescription().getRawText();
-            String block = "\n─────────────────────\n#DETAILS#{\n" + details + "\n}";
+            String block = "\n\n#DETAILS#{\n" + details + "\n}";
             String updated;
             if (raw.contains("#DETAILS#{")) {
-                updated = raw.replaceAll("(?s)\n?─+\n#DETAILS#\\{.*?\\}", block);
+                updated = raw.replaceAll("(?s)\n{1,2}#DETAILS#\\{.*?\\}", block);
             } else {
                 updated = raw + block;
             }

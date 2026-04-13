@@ -65,7 +65,7 @@ public class EventDetailsParser {
 
     private static int reverseTimeIndex(String timeStr) {
         for (int i = 0; i < 8; i++) {
-            if (CourseStartTimeMenu.slotToTimeStr(i).equals(timeStr)) return i;
+            if (CourseStartTimeMenu.slotLabel(i).equals(timeStr)) return i;
         }
         return -1;
     }
