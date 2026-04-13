@@ -102,6 +102,35 @@ public class CalendarService {
         
         return courses;
     }
- 
-    
+
+    public void setEventDetails(XEvent event, String details) {
+        try {
+            String raw = event.getDescription().getRawText();
+            String block = "#details#{\n" + details + "\n}";
+            String updated;
+            if (raw.contains("#details#{")) {
+                updated = raw.replaceAll("(?s)#details#\\{.*?\\}", block);
+            } else {
+                updated = raw + "\n" + block;
+            }
+            event.getDescription().setText(updated);
+            admin.updateEvent(event);
+            XLogger.info(this, "Updated event details tag");
+        } catch (IOException | GeneralSecurityException e) {
+            XLogger.severe(this, "Failed to set event details: %s", e.getMessage());
+        }
+    }
+
+    public List<Course> getCoursesStartingOn(XDate date) throws IOException {
+        List<Course> all = getCoursesForDay(date);
+        List<Course> starting = new ArrayList<>();
+        String dateStr = date.format("yyyy-MM-dd");
+        for (Course course : all) {
+            if (course.getXEvent().getStart().format("yyyy-MM-dd").equals(dateStr)) {
+                starting.add(course);
+            }
+        }
+        return starting;
+    }
+
 }

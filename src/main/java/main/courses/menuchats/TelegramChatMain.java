@@ -15,7 +15,7 @@ import main.calendar.CalendarService;
 import main.calendar.Course;
 import main.contacts.Contact;
 import main.contacts.ContactsService;
-import main.courses.CourseType;
+import main.courses.Offering;
 import main.courses.menus.CourseConfirmMenu;
 import main.courses.menus.CourseLocationMenu;
 import main.courses.menus.CourseStartTimeMenu;
@@ -211,13 +211,23 @@ public class TelegramChatMain implements TelegramChat
         int courseIndex = Integer.parseInt(parts[2]);
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
-            editMessageWithMenu(messageId, courseText + "Day 1 — What time should it start?",
-                new CourseStartTimeMenu(isoDate, courseIndex, 1, "", "").getMenu());
+
+            main.calendar.EventDetailsParser.Result saved =
+                main.calendar.EventDetailsParser.parse(course.getXEvent().getDescription().getRawText());
+            if (saved.found) {
+                editMessageWithMenu(messageId,
+                    courseText + buildDaySummary(saved.times, saved.locs, isoDate) +
+                    "\n\n⚡ Details already saved. Send confirmation emails again?",
+                    new CourseConfirmMenu(isoDate, courseIndex, saved.times, saved.locs).getMenu());
+            } else {
+                editMessageWithMenu(messageId, courseText + "Day 1 — What time should it start?",
+                    new CourseStartTimeMenu(isoDate, courseIndex, 1, "", "").getMenu());
+            }
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -235,7 +245,7 @@ public class TelegramChatMain implements TelegramChat
         String newTimes = timesPrev + slot;
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
@@ -261,10 +271,10 @@ public class TelegramChatMain implements TelegramChat
         String newLocs = locsPrev + slot;
         long messageId = callbackQuery.getMessage().getMessageId();
         try {
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
-            int totalDays = CourseType.fromName(course.getType()).days;
+            int totalDays = Offering.fromName(course.getType()).days;
             String formattedDate = LocalDate.parse(isoDate).format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
             if (day < totalDays) {
@@ -331,10 +341,10 @@ public class TelegramChatMain implements TelegramChat
         }
 
         try {
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
             if (courseIndex >= courses.size()) return;
             Course course = courses.get(courseIndex);
-            CourseType courseType = CourseType.fromName(course.getType());
+            Offering courseType = Offering.fromName(course.getType());
             int totalDays = courseType.days;
             String duration = courseType.duration;
 
@@ -388,6 +398,16 @@ public class TelegramChatMain implements TelegramChat
                 EmailAdmin.getInstance().send(msg);
                 CalendarService.getInstance().markStudentAsPending(course.getXEvent(), email);
                 sent++;
+            }
+
+            if (sent > 0) {
+                StringBuilder details = new StringBuilder();
+                for (int i = 0; i < totalDays; i++) {
+                    details.append("Day ").append(i + 1).append(": ").append(dayFormatted[i])
+                           .append(" at ").append(timeStrs[i])
+                           .append(" — ").append(locNames[i]).append("\n");
+                }
+                CalendarService.getInstance().setEventDetails(course.getXEvent(), details.toString().trim());
             }
 
             String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));

@@ -48,7 +48,7 @@ public class DailyReminderService {
             LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(2);
             String isoDate = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
             String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
-            List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate(isoDate));
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
 
             if (courses.isEmpty()) {
                 XLogger.info(this, "No courses found for %s", isoDate);

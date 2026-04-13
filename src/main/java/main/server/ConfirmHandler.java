@@ -64,7 +64,9 @@ public class ConfirmHandler implements HttpHandler {
                     String displayName = (contact != null && contact.getFistName() != null && !contact.getFistName().trim().isEmpty())
                         ? contact.getFistName().trim()
                         : student.getEmail();
-                    return successPage(displayName);
+                    String courseUrl = main.courses.Offering.fromName(course.getType()).url;
+                    if (courseUrl == null) courseUrl = "https://www.freedive-mallorca.com";
+                    return successPage(displayName, courseUrl);
                 }
             }
             return errorPage("Confirmation link not found.");
@@ -101,8 +103,8 @@ public class ConfirmHandler implements HttpHandler {
         + "</style></head><body><div class=\"card\">"
         + "<a href=\"https://www.freedive-mallorca.com\"><img class=\"logo\" src=\"/static/logo.png\" alt=\"Freedive Mallorca\"></a>";
 
-    private String successPage(String name) {
-        return PAGE_HEAD
+    private String successPage(String name, String courseUrl) {
+        return PAGE_HEAD.replace("<a href=\"https://www.freedive-mallorca.com\">", "<a href=\"" + courseUrl + "\">")
             + "<div class=\"emoji\">✅</div>"
             + "<h1>Fantástico, thanks for confirming, " + name + "!</h1>"
             + "<p>Everything is set — see you very soon in the water 🧜‍♀️</p>"
