@@ -360,6 +360,14 @@ public class TelegramChatMain implements TelegramChat
                 locUrls[i] = CourseLocationMenu.getUrl(Character.getNumericValue(locs.charAt(i)));
             }
 
+            StringBuilder detailsBlock = new StringBuilder();
+            for (int i = 0; i < totalDays; i++) {
+                detailsBlock.append("  Day ").append(i + 1).append(": ").append(dayFormatted[i])
+                       .append(" at ").append(timeStrs[i])
+                       .append(" — ").append(locNames[i]).append("\n");
+            }
+            CalendarService.getInstance().setEventDetails(course.getXEvent(), detailsBlock.toString().trim());
+
             int sent = 0;
             int skipped = 0;
             for (main.calendar.Student student : course.getEventStudents().getStudents()) {
@@ -400,15 +408,6 @@ public class TelegramChatMain implements TelegramChat
                 sent++;
             }
 
-            if (sent > 0) {
-                StringBuilder details = new StringBuilder();
-                for (int i = 0; i < totalDays; i++) {
-                    details.append("Day ").append(i + 1).append(": ").append(dayFormatted[i])
-                           .append(" at ").append(timeStrs[i])
-                           .append(" — ").append(locNames[i]).append("\n");
-                }
-                CalendarService.getInstance().setEventDetails(course.getXEvent(), details.toString().trim());
-            }
 
             String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);

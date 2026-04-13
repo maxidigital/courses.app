@@ -23,8 +23,15 @@ public class EventDetailsParser {
         public static Result of(String times, String locs) { return new Result(true, times, locs); }
     }
 
-    private static final Pattern BLOCK = Pattern.compile("(?s)#details#\\{(.*?)\\}");
-    private static final Pattern LINE  = Pattern.compile("Day \\d+:.*? at (.+?) — (.+)");
+    private static final Pattern BLOCK = Pattern.compile("(?s)#DETAILS#\\{(.*?)\\}");
+    private static final Pattern LINE  = Pattern.compile("\\s*Day \\d+:.*? at (.+?) — (.+)");
+
+    public static String getRawContent(String rawDescription) {
+        if (rawDescription == null) return null;
+        Matcher m = BLOCK.matcher(rawDescription);
+        if (!m.find()) return null;
+        return m.group(1).trim();
+    }
 
     public static Result parse(String rawDescription) {
         if (rawDescription == null) return Result.notFound();

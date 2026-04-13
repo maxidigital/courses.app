@@ -106,12 +106,12 @@ public class CalendarService {
     public void setEventDetails(XEvent event, String details) {
         try {
             String raw = event.getDescription().getRawText();
-            String block = "#details#{\n" + details + "\n}";
+            String block = "\n─────────────────────\n#DETAILS#{\n" + details + "\n}";
             String updated;
-            if (raw.contains("#details#{")) {
-                updated = raw.replaceAll("(?s)#details#\\{.*?\\}", block);
+            if (raw.contains("#DETAILS#{")) {
+                updated = raw.replaceAll("(?s)\n?─+\n#DETAILS#\\{.*?\\}", block);
             } else {
-                updated = raw + "\n" + block;
+                updated = raw + block;
             }
             event.getDescription().setText(updated);
             admin.updateEvent(event);

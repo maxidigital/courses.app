@@ -52,6 +52,10 @@ class CoursesTelegramMessage {
 
         for (Course course : courses) {
             sb.append("   <u>").append(course.getType()).append("</u>\n");
+            String savedDetails = main.calendar.EventDetailsParser.getRawContent(course.getXEvent().getDescription().getRawText());
+            if (savedDetails != null) {
+                sb.append("<code>").append(savedDetails).append("</code>\n");
+            }
 
             EventStudents students = course.getEventStudents();
             if (students.size() == 0) {
@@ -82,7 +86,7 @@ class CoursesTelegramMessage {
                     }
 
                     String stateTag = "";
-                    if (student.getState() == ConfirmationState.CONFIRMED) stateTag = "  ✅ Details confirmed\n";
+                    if (student.getState() == ConfirmationState.CONFIRMED) stateTag = "  ☀️ Details confirmed\n";
                     else if (student.getState() == ConfirmationState.PENDING) stateTag = "  ⏳ Details pending\n";
 
                     sb.append(i + 1).append(". ").append(mask).append(" ")
