@@ -103,6 +103,29 @@ public class CalendarService {
         return courses;
     }
 
+    public void markStudentsAsPendingAndSetDetails(XEvent event, List<String> emails, String details) {
+        try {
+            String updated = event.getDescription().getRawText();
+            for (String email : emails) {
+                updated = updated.replaceAll(
+                    "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
+                    "$1  " + ConfirmationState.PENDING.marker
+                );
+            }
+            String block = "\n─────────────────────\n#DETAILS#{\n" + details + "\n}";
+            if (updated.contains("#DETAILS#{")) {
+                updated = updated.replaceAll("(?s)\n?─+\n#DETAILS#\\{.*?\\}", block);
+            } else {
+                updated = updated + block;
+            }
+            event.getDescription().setText(updated);
+            admin.updateEvent(event);
+            XLogger.info(this, "Marked %d students as PENDING and saved details", emails.size());
+        } catch (IOException | GeneralSecurityException e) {
+            XLogger.severe(this, "Failed to update event: %s", e.getMessage());
+        }
+    }
+
     public void setEventDetails(XEvent event, String details) {
         try {
             String raw = event.getDescription().getRawText();
