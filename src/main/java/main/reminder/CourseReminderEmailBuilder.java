@@ -128,12 +128,11 @@ public class CourseReminderEmailBuilder {
     }
 
     private static String confirmBlock(String confirmationUrl) {
-        return "  <hr style=\"border:none;border-top:1px solid #ddd;margin:24px 0;\">\n"
-            + "  <p>Just click below so I know you've received everything and we're all set 👍</p>\n"
-            + "  <p style=\"text-align:center;margin-top:16px;\">"
-            + "<a href=\"" + confirmationUrl + "\" style=\"background:#0077b6;color:white;padding:12px 28px;"
-            + "border-radius:8px;text-decoration:none;font-weight:bold;\">Everything looks good ✅</a></p>\n"
-            + "  <hr style=\"border:none;border-top:1px solid #ddd;margin:24px 0;\">\n"
+        return "  <div style=\"background:#fdf6ec;border-radius:10px;padding:24px 20px;margin:24px 0;text-align:center;\">\n"
+            + "  <p style=\"margin:0 0 16px 0;\">Please just click below so I know you've received everything and we're all set 👍</p>\n"
+            + "  <a href=\"" + confirmationUrl + "\" style=\"background:#0077b6;color:white;padding:12px 28px;"
+            + "border-radius:8px;text-decoration:none;font-weight:bold;\">Everything looks good ✅</a>\n"
+            + "  </div>\n"
             + "\n";
     }
 

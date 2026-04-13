@@ -383,7 +383,7 @@ public class TelegramChatMain implements TelegramChat
                 }
                 Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
-                    .setSubject("Your " + course.getType() + " – Final Details ✅")
+                    .setSubject("Your " + course.getType() + " - " + day1Date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " – Final Details ✅")
                     .setHtmlContent(html);
                 EmailAdmin.getInstance().send(msg);
                 CalendarService.getInstance().markStudentAsPending(course.getXEvent(), email);
