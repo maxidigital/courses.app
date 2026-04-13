@@ -26,15 +26,21 @@ public class EventDetailsParser {
     private static final Pattern BLOCK = Pattern.compile("(?s)#DETAILS#\\{(.*?)\\}");
     private static final Pattern LINE  = Pattern.compile("\\s*Day \\d+: (.+?) - (.+)");
 
+    private static String normalize(String text) {
+        if (text == null) return null;
+        return text.replaceAll("<br\\s*/?>", "\n");
+    }
+
     public static String getRawContent(String rawDescription) {
         if (rawDescription == null) return null;
-        Matcher m = BLOCK.matcher(rawDescription);
+        Matcher m = BLOCK.matcher(normalize(rawDescription));
         if (!m.find()) return null;
         return m.group(1).trim();
     }
 
     public static Result parse(String rawDescription) {
         if (rawDescription == null) return Result.notFound();
+        rawDescription = normalize(rawDescription);
 
         Matcher blockMatcher = BLOCK.matcher(rawDescription);
         if (!blockMatcher.find()) return Result.notFound();

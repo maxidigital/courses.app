@@ -52,6 +52,7 @@ public final class EventStudents implements Serializable, Iterable<Student> {
         }
         
         String rawText = eventDescription.getRawText();
+        if (rawText != null) rawText = rawText.replaceAll("<br\\s*/?>", "\n");
         String[] emails = EmailExtractor.extractEmails(rawText);
 
         for (String email : emails) {
