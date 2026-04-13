@@ -38,7 +38,6 @@ public class ContactTelegramMessage {
             displayName = extractUsername(email);
         }
 
-        System.out.println("StudentTelegramMessage: Processing contact for " + email + ": " + contact.getFistName() + " " + contact.getLastName());
         int age = contact.getAge();
 
         // Full name with age in bold

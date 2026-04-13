@@ -63,7 +63,7 @@ public class CoursesMenu implements InlineMenu
 
     public static String getTextDateWithYear(int days) {
         LocalDate fecha = LocalDate.now(ZoneId.of("Europe/Madrid")).plusDays(days);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/YYYY");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return fecha.format(formatter);
     }
 }

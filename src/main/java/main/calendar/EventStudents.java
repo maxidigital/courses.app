@@ -72,20 +72,6 @@ public final class EventStudents implements Serializable, Iterable<Student> {
     }
     
     /**
-     * Simple validation for email format
-     * 
-     * @param email Email to validate
-     * @return true if email appears valid
-     */
-    private boolean isValidEmail(String email) {
-        // Simple email validation - contains @ and at least one dot after @
-        return email != null && 
-               email.contains("@") && 
-               email.indexOf('@') < email.lastIndexOf('.') &&
-               email.lastIndexOf('.') < email.length() - 1;
-    }
-    
-    /**
      * Finds a student by email hash
      *
      * @param emailHash The email hash to search for

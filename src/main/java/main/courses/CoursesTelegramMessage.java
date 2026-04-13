@@ -5,7 +5,6 @@ import blue.underwater.telegram.admin.F;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import main.calendar.CalendarService;
 import main.calendar.Course;
 import blue.underwater.calendar.admin.event.ConfirmationState;
 import main.calendar.EventStudents;
@@ -24,13 +23,6 @@ class CoursesTelegramMessage {
      *
      */
     public CoursesTelegramMessage() {
-    }
-
-    public static void main(String[] args) throws IOException {
-        CoursesTelegramMessage cc = new CoursesTelegramMessage();
-        List<Course> courses = CalendarService.getInstance().getCoursesForDay(XDate.parseDate("2025-04-14"));
-        String ss = cc.getTelegramMessage(XDate.parseDate("2025-04-14"), courses, null);
-        System.out.println(ss);
     }
 
     /**

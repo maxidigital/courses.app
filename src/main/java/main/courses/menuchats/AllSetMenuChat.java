@@ -74,7 +74,7 @@ public class AllSetMenuChat implements MenuChat {
             org.telegram.telegrambots.meta.api.objects.Message sentMessage = telegram.execute(sendMessage);
             this.messageId = sentMessage.getMessageId();
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            Logger.getLogger(AllSetMenuChat.class.getName()).log(Level.SEVERE, null, e);
         }
     }
     

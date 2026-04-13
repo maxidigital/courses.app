@@ -33,23 +33,11 @@ public class MultiMedicalFormReminderMenu implements InlineMenu {
                 }
                 
                 String firstName = contact.getFistName();
-                String lastName = contact.getLastName();
-                
-                // Debug logging
-                System.out.println("DEBUG - Original firstName: '" + firstName + "', lastName: '" + lastName + "'");
-                
                 if (firstName == null || firstName.trim().isEmpty()) {
                     firstName = contact.getEmail();
                 } else {
-                    // Extract only the first word if the firstName contains multiple words
-                    String[] nameParts = firstName.trim().split("\\s+");
-                    if (nameParts.length > 1) {
-                        System.out.println("DEBUG - firstName contains multiple words: " + nameParts.length);
-                    }
-                    firstName = nameParts[0];
+                    firstName = firstName.trim().split("\\s+")[0];
                 }
-                
-                System.out.println("DEBUG - Using firstName for button: '" + firstName + "'");
                 
                 List<InlineKeyboardButton> row = new ArrayList<>();
                 row.add(InlineKeyboardButton.builder()
@@ -58,8 +46,8 @@ public class MultiMedicalFormReminderMenu implements InlineMenu {
                         .build());
                 keyboard.add(row);
             } catch (Exception e) {
-                // Log error but continue with next contact
-                e.printStackTrace();
+                java.util.logging.Logger.getLogger(MultiMedicalFormReminderMenu.class.getName())
+                    .log(java.util.logging.Level.SEVERE, "Error building button for contact", e);
             }
         }
         
