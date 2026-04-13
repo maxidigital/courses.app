@@ -27,6 +27,13 @@ public class CourseSelectionMenu implements InlineMenu {
                     .build());
             keyboard.add(row);
         }
+        List<InlineKeyboardButton> cancelRow = new ArrayList<>();
+        cancelRow.add(InlineKeyboardButton.builder()
+                .text("❌ Cancel")
+                .callbackData("course_remind_cancel:" + isoDate)
+                .build());
+        keyboard.add(cancelRow);
+
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(keyboard);
         return markup;

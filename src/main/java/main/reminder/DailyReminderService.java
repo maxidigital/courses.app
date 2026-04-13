@@ -13,7 +13,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import main.calendar.CalendarService;
 import main.calendar.Course;
+import main.calendar.EventDetailsParser;
 import main.calendar.Student;
+import main.courses.menus.CourseConfirmMenu;
+import main.courses.menuchats.CourseConfirmMenuChat;
 import main.courses.menuchats.CourseSelectionMenuChat;
 import main.courses.menuchats.CourseStartTimeMenuChat;
 import main.telegram.TelegramCenter;
@@ -61,12 +64,27 @@ public class DailyReminderService {
             if (courses.size() == 1) {
                 Course course = courses.get(0);
                 String courseText = buildCourseDetails(course, formattedDate);
+                EventDetailsParser.Result saved = EventDetailsParser.parse(course.getXEvent().getDescription().getRawText());
                 if (requesterChatId > 0) {
-                    new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId, courseText, isoDate, 0).reply();
+                    if (saved.found) {
+                        new CourseConfirmMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId,
+                            courseText + "\n⚡ Details already saved. Send confirmation emails again?",
+                            isoDate, 0, saved.times, saved.locs).reply();
+                    } else {
+                        new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId, courseText, isoDate, 0).reply();
+                    }
                 } else {
-                    TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                        new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, courseText, isoDate, 0)
-                    );
+                    if (saved.found) {
+                        TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                            new CourseConfirmMenuChat(TelegramCenter.getInstance().getMain(), chatId,
+                                courseText + "\n⚡ Details already saved. Send confirmation emails again?",
+                                isoDate, 0, saved.times, saved.locs)
+                        );
+                    } else {
+                        TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                            new CourseStartTimeMenuChat(TelegramCenter.getInstance().getMain(), chatId, courseText, isoDate, 0)
+                        );
+                    }
                 }
             } else {
                 if (requesterChatId > 0) {
