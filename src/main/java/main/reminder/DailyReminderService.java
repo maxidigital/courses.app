@@ -29,7 +29,13 @@ public class DailyReminderService {
 
     public void start() {
         long initialDelay = computeInitialDelay();
-        scheduler.scheduleAtFixedRate(this::checkAndNotify, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                checkAndNotify();
+            } catch (Exception e) {
+                XLogger.severe(this, "DailyReminderService uncaught error: %s", e.getMessage());
+            }
+        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS);
         XLogger.info(this, "DailyReminderService started, next run in %d seconds", initialDelay);
     }
 
