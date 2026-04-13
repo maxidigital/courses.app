@@ -24,7 +24,7 @@ public class EventDetailsParser {
     }
 
     private static final Pattern BLOCK = Pattern.compile("(?s)#DETAILS#\\{(.*?)\\}");
-    private static final Pattern LINE  = Pattern.compile("\\s*Day \\d+:.*? at (.+?) — (.+)");
+    private static final Pattern LINE  = Pattern.compile("\\s*Day \\d+: (.+?) - (.+)");
 
     public static String getRawContent(String rawDescription) {
         if (rawDescription == null) return null;
