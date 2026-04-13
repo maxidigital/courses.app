@@ -96,8 +96,8 @@ public class CoursesDaySelector {
                             contactsNeedingReminder.add(contact);
                         }
                     } catch (Exception e) {
-                        // On error, include the contact to be safe
-                        contactsNeedingReminder.add(contact);
+                        Logger.getLogger(CoursesDaySelector.class.getName()).log(Level.WARNING,
+                            "Could not check reminder status for " + contact.getEmail() + ", skipping", e);
                     }
                 }
                 
