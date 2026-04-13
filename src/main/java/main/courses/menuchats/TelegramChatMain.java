@@ -362,9 +362,11 @@ public class TelegramChatMain implements TelegramChat
 
             StringBuilder detailsBlock = new StringBuilder();
             for (int i = 0; i < totalDays; i++) {
-                detailsBlock.append("  Day ").append(i + 1).append(": ").append(dayFormatted[i])
-                       .append(" at ").append(timeStrs[i])
-                       .append(" — ").append(locNames[i]).append("\n");
+                String shortDate = day1Date.plusDays(i).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                String shortTime = CourseStartTimeMenu.slotLabel(Character.getNumericValue(times.charAt(i)));
+                detailsBlock.append("  Day ").append(i + 1).append(": ")
+                       .append(shortDate).append(" ").append(shortTime)
+                       .append(" - ").append(locNames[i]).append("\n");
             }
             CalendarService.getInstance().setEventDetails(course.getXEvent(), detailsBlock.toString().trim());
 
