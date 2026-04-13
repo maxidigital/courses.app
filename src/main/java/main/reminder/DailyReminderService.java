@@ -43,12 +43,16 @@ public class DailyReminderService {
     }
 
     public void checkAndNotify() {
-        checkAndNotify(-1);
+        checkAndNotify(-1, 2);
     }
 
     public void checkAndNotify(long requesterChatId) {
+        checkAndNotify(requesterChatId, 2);
+    }
+
+    public void checkAndNotify(long requesterChatId, int daysAhead) {
         try {
-            LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(2);
+            LocalDate targetDate = LocalDate.now(TIMEZONE).plusDays(daysAhead);
             String isoDate = targetDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
             String formattedDate = targetDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
             List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
