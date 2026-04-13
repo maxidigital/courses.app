@@ -85,7 +85,7 @@ public class ConfirmHandler implements HttpHandler {
         + "*{box-sizing:border-box;}"
         + "body{font-family:Arial,sans-serif;display:flex;justify-content:center;align-items:center;"
         + "min-height:100vh;margin:0;padding:16px;"
-        + "background:url('/static/bg.jpg') center/cover no-repeat fixed;}"
+        + "background:url('https://assets-server-maxidigital.up.railway.app/bg.jpg') center/cover no-repeat fixed;}"
         + ".card{text-align:center;padding:40px 32px;background:rgba(255,255,255,0.92);border-radius:16px;"
         + "box-shadow:0 4px 24px rgba(0,0,0,0.25);width:100%;max-width:420px;}"
         + "img.logo{width:min(200px,70%);margin-bottom:24px;}"
@@ -94,14 +94,14 @@ public class ConfirmHandler implements HttpHandler {
         + ".emoji{font-size:clamp(2.5em,8vw,3em);margin-bottom:16px;}"
         + "h1.err{color:#555;}"
         + "@media(prefers-color-scheme:dark){"
-        + "body{background:url('/static/bg.jpg') center/cover no-repeat fixed;}"
+        + "body{background:url('https://assets-server-maxidigital.up.railway.app/bg.jpg') center/cover no-repeat fixed;}"
         + ".card{background:rgba(30,30,30,0.93);}"
         + "h1{color:#4db8ff;}"
         + "p{color:#ccc;}"
         + "h1.err{color:#aaa;}"
         + "}"
         + "</style></head><body><div class=\"card\">"
-        + "<a href=\"https://www.freedive-mallorca.com\"><img class=\"logo\" src=\"/static/logo.png\" alt=\"Freedive Mallorca\"></a>";
+        + "<a href=\"https://www.freedive-mallorca.com\"><img class=\"logo\" src=\"https://assets-server-maxidigital.up.railway.app/logo.png\" alt=\"Freedive Mallorca\"></a>";
 
     private String successPage(String name, String courseUrl) {
         return PAGE_HEAD.replace("<a href=\"https://www.freedive-mallorca.com\">", "<a href=\"" + courseUrl + "\">")
