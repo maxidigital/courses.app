@@ -43,7 +43,7 @@ public class EventDetailsParser {
         if (rawDescription == null) return null;
         Matcher m = BLOCK.matcher(normalize(rawDescription));
         if (!m.find()) return null;
-        return m.group(1).trim();
+        return m.group(1).trim().replaceAll("(?m)^\\s+", "");
     }
 
     public static Result parse(String rawDescription) {
