@@ -67,9 +67,12 @@ class CoursesTelegramMessage {
                     
                     // Check if medical form is missing and callback is provided
                     MedicalForm mf = MedicalFormsService.getInstance().findByEmail(studentEmail);
-                    if (mf == null && callback != null && student.getContact() != null) {
-                        // Trigger callback for students without medical form (only if contact exists)
-                        callback.onMedicalFormMissing(student.getContact(), course.getType());
+                    if (mf == null && callback != null) {
+                        main.contacts.Contact contactToUse = student.getContact();
+                        if (contactToUse == null) {
+                            contactToUse = new main.contacts.Contact("", "", studentEmail);
+                        }
+                        callback.onMedicalFormMissing(contactToUse, course.getType());
                     }
                     
                     // If no contact info, at least show the email
