@@ -371,7 +371,7 @@ public class TelegramChatMain implements TelegramChat
             StringBuilder detailsBlock = new StringBuilder();
             for (int i = 0; i < totalDays; i++) {
                 String shortTime = CourseStartTimeMenu.slotLabel(Character.getNumericValue(times.charAt(i)));
-                detailsBlock.append("  Day ").append(i + 1).append(": ")
+                detailsBlock.append("Day ").append(i + 1).append(": ")
                        .append(shortTime).append(" - ").append(locNames[i]).append("\n");
             }
             String detailsStr = detailsBlock.toString().stripTrailing();
