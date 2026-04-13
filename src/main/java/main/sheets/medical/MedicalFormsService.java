@@ -33,11 +33,11 @@ public final class MedicalFormsService
     }
     
     public synchronized void add(MedicalForm mf) {
-        this.items.put(mf.getEmail(), mf);
+        this.items.put(mf.getEmail().toLowerCase(), mf);
     }
-    
+
     public synchronized MedicalForm findByEmail(String email) {
-        return items.get(email);
+        return email != null ? items.get(email.toLowerCase()) : null;
     }
     
     public synchronized void update() {
