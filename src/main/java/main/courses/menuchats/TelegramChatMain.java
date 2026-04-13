@@ -370,14 +370,12 @@ public class TelegramChatMain implements TelegramChat
             }
             String detailsStr = detailsBlock.toString().stripTrailing();
 
-            int sent = 0;
-            int skipped = 0;
+            // Prepare email content per student before spawning thread
             List<String> emailsToMark = new ArrayList<>();
+            List<Email> emails = new ArrayList<>();
+            int skipped = 0;
             for (main.calendar.Student student : course.getEventStudents().getStudents()) {
-                if (student.isPending() || student.isConfirmed()) {
-                    skipped++;
-                    continue;
-                }
+                if (student.isPending() || student.isConfirmed()) { skipped++; continue; }
                 String email = student.getEmail();
                 String firstName = resolveFirstName(email);
                 String appUrl = System.getProperty("app.url", "");
@@ -402,25 +400,40 @@ public class TelegramChatMain implements TelegramChat
                         courseType.getDayDescription(1, ""),
                         courseType.getDayDescription(2, ""));
                 }
-                Email msg = EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
+                emails.add(EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
                     .addBcc("info@freedive-mallorca.com")
                     .setSubject("Your " + course.getType() + " - " + day1Date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " – Final Details ✅")
-                    .setHtmlContent(html);
-                EmailAdmin.getInstance().send(msg);
+                    .setHtmlContent(html));
                 emailsToMark.add(email);
-                sent++;
             }
 
-            CalendarService.getInstance().markStudentsAsPendingAndSetDetails(course.getXEvent(), emailsToMark, detailsStr);
+            final int skippedFinal = skipped;
+            final String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
+            final String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
+            final String daySummary = buildDaySummary(times, locs, isoDate);
 
-            String formattedDate = day1Date.format(DateTimeFormatter.ofPattern("dd MMM yyyy"));
-            String courseText = DailyReminderService.buildCourseDetails(course, formattedDate);
-            String result = sent > 0
-                ? "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
-                : "ℹ️ <b>No emails sent</b>";
-            if (skipped > 0)
-                result += "\n⏭ " + skipped + " already notified (pending/confirmed) — skipped";
-            telegram.editMessage(chatId, messageId, courseText + buildDaySummary(times, locs, isoDate) + "\n\n" + result);
+            telegram.editMessage(chatId, messageId, "⏳ Sending...");
+
+            new Thread(() -> {
+                try {
+                    for (Email msg : emails) EmailAdmin.getInstance().send(msg);
+                    CalendarService.getInstance().markStudentsAsPendingAndSetDetails(course.getXEvent(), emailsToMark, detailsStr);
+                    int sent = emails.size();
+                    String result = sent > 0
+                        ? "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
+                        : "ℹ️ <b>No emails sent</b>";
+                    if (skippedFinal > 0)
+                        result += "\n⏭ " + skippedFinal + " already notified (pending/confirmed) — skipped";
+                    telegram.editMessage(chatId, messageId, courseText + daySummary + "\n\n" + result);
+                } catch (Exception ex) {
+                    Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+                    try {
+                        telegram.editMessage(chatId, messageId, "❌ <b>Failed to send emails</b>: " + ex.getMessage());
+                    } catch (TelegramApiException tex) {
+                        Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, tex);
+                    }
+                }
+            }).start();
 
         } catch (Exception ex) {
             Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
