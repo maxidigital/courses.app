@@ -110,7 +110,7 @@ public final class RemindersSheetsAdmin {
         
         if (emails != null) {
             for (int i = 0; i < emails.size(); i++) {
-                if (!emails.get(i).isEmpty() && email.equals(emails.get(i).get(0).toString())) {
+                if (!emails.get(i).isEmpty() && email.equalsIgnoreCase(emails.get(i).get(0).toString())) {
                     return i + 2; // Row number (adding 2 because we start from row 2)
                 }
             }
@@ -166,7 +166,7 @@ public final class RemindersSheetsAdmin {
         
         if (allData != null) {
             for (List<Object> row : allData) {
-                if (!row.isEmpty() && email.equals(row.get(0).toString())) {
+                if (!row.isEmpty() && email.equalsIgnoreCase(row.get(0).toString())) {
                     return row;
                 }
             }
