@@ -46,11 +46,16 @@ public class Day2ReminderService {
     }
 
     public void checkDay2() {
+        checkDay2(-1);
+    }
+
+    public void checkDay2(long requesterChatId) {
         try {
             LocalDate today = LocalDate.now(TIMEZONE);
             String isoDate = today.format(DateTimeFormatter.ISO_LOCAL_DATE);
             List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
 
+            int prompted = 0;
             for (int i = 0; i < courses.size(); i++) {
                 Course course = courses.get(i);
                 if (!"Freediver Course".equals(course.getType())) continue;
@@ -66,6 +71,7 @@ public class Day2ReminderService {
                             "⚠️ <b>Freediver Course today but Day 2 details are not set.</b>\nRun /check48 to configure.",
                             isoDate, courseIndex)
                     );
+                    prompted++;
                     continue;
                 }
 
@@ -90,10 +96,22 @@ public class Day2ReminderService {
                         text, isoDate, courseIndex)
                 );
 
+                prompted++;
                 XLogger.info(this, "Day2 reminder prompt sent to admins for %s", isoDate);
+            }
+
+            if (requesterChatId > 0) {
+                if (prompted == 0) {
+                    TelegramCenter.getInstance().toUser(requesterChatId, "📭 No Freediver Courses found for today.");
+                } else {
+                    TelegramCenter.getInstance().toUser(requesterChatId, "✅ Day 2 check complete.");
+                }
             }
         } catch (Exception e) {
             XLogger.severe(this, "Day2ReminderService error: %s", e.getMessage());
+            if (requesterChatId > 0) {
+                TelegramCenter.getInstance().toUser(requesterChatId, "❌ Error: %s", e.getMessage());
+            }
         }
     }
 }
