@@ -84,11 +84,12 @@ public class Day2ReminderService {
                 String locUrl  = CourseLocationMenu.getUrl(lSlot);
 
                 String text = String.format(
-                    "🌊 <b>Freediver Course — Day 2 Reminder</b>\n\n"
+                    "🌊 <b>Freediver Course — Day 1 just finished!</b>\n\n"
+                    + "Tomorrow is Day 2:\n"
                     + "📅 <b>%s</b>\n"
                     + "📍 %s\n"
                     + "🕤 %s\n\n"
-                    + "Send Day 2 reminder emails to participants?",
+                    + "Send preparation instructions to participants?",
                     day2Formatted, locName, timeStr);
 
                 TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
@@ -100,12 +101,8 @@ public class Day2ReminderService {
                 XLogger.info(this, "Day2 reminder prompt sent to admins for %s", isoDate);
             }
 
-            if (requesterChatId > 0) {
-                if (prompted == 0) {
-                    TelegramCenter.getInstance().toUser(requesterChatId, "📭 No Freediver Courses found for today.");
-                } else {
-                    TelegramCenter.getInstance().toUser(requesterChatId, "✅ Day 2 check complete.");
-                }
+            if (requesterChatId > 0 && prompted == 0) {
+                TelegramCenter.getInstance().toUser(requesterChatId, "📭 No Freediver Courses found for today.");
             }
         } catch (Exception e) {
             XLogger.severe(this, "Day2ReminderService error: %s", e.getMessage());
