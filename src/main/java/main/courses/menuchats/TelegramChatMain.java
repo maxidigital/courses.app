@@ -19,6 +19,8 @@ import main.courses.Offering;
 import main.courses.menus.CourseConfirmMenu;
 import main.courses.menus.CourseLocationMenu;
 import main.courses.menus.CourseStartTimeMenu;
+import main.calendar.EventDetailsParser;
+import main.calendar.Student;
 import main.reminder.CourseReminderEmailBuilder;
 import main.reminder.DailyReminderService;
 import main.telegram.TelegramCenter;
@@ -84,6 +86,12 @@ public class TelegramChatMain implements TelegramChat
             return;
         }
         
+        // Day 2 reminder flow
+        if (callbackData != null && (callbackData.startsWith("day2_confirm_send:") || callbackData.startsWith("day2_confirm_cancel:"))) {
+            handleDay2ConfirmCallback(callbackQuery);
+            return;
+        }
+
         // Check if this is a medical reminder callback
         if (callbackData != null && (callbackData.startsWith("medical_reminder:") || callbackData.startsWith("reminder_cancel:") || callbackData.equals("reminder_cancel_all"))) {
             handleMedicalReminderCallback(callbackQuery);
@@ -208,6 +216,93 @@ public class TelegramChatMain implements TelegramChat
                 } else {
                     Logger.getLogger(TelegramChatMain.class.getName()).log(Level.WARNING, "Contact not found for email: " + email);
                 }
+            }
+        }
+    }
+
+    // day2_confirm_send/cancel:DATE:CIDX
+    private void handleDay2ConfirmCallback(CallbackQuery callbackQuery) {
+        String callbackData = callbackQuery.getData();
+        long messageId = callbackQuery.getMessage().getMessageId();
+        String[] parts = callbackData.split(":");
+        String isoDate = parts[1];
+        int courseIndex = Integer.parseInt(parts[2]);
+
+        if (callbackData.startsWith("day2_confirm_cancel:")) {
+            try {
+                telegram.editMessage(chatId, messageId, "❌ <b>Cancelled</b>");
+            } catch (TelegramApiException ex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return;
+        }
+
+        try {
+            List<Course> courses = CalendarService.getInstance().getCoursesStartingOn(XDate.parseDate(isoDate));
+            if (courseIndex >= courses.size()) {
+                telegram.editMessage(chatId, messageId, "❌ <b>Course not found</b>");
+                return;
+            }
+            Course course = courses.get(courseIndex);
+            EventDetailsParser.Result details = EventDetailsParser.parse(
+                    course.getXEvent().getDescription().getRawText());
+            if (!details.found) {
+                telegram.editMessage(chatId, messageId, "❌ <b>Details not found in event</b>");
+                return;
+            }
+
+            LocalDate day2Date = LocalDate.parse(isoDate).plusDays(1);
+            String day2Formatted = day2Date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM"));
+            int tSlot = Character.getNumericValue(details.times.charAt(1));
+            int lSlot = Character.getNumericValue(details.locs.charAt(1));
+            String timeStr = CourseStartTimeMenu.slotToTimeStr(tSlot);
+            String locName = CourseLocationMenu.getName(lSlot);
+            String locUrl  = CourseLocationMenu.getUrl(lSlot);
+
+            telegram.editMessage(chatId, messageId, "⏳ Sending...");
+
+            main.courses.ContactsFinder.findContacts(courses);
+            List<blue.underwater.email.admin.Email> emails = new ArrayList<>();
+            for (Student student : course.getEventStudents().getStudents()) {
+                Contact contact = student.getContact();
+                if (contact == null) continue;
+                String firstName = contact.getFistName();
+                if (firstName == null || firstName.trim().isEmpty()) firstName = contact.getEmail();
+                else firstName = firstName.trim().split("\\s+")[0];
+
+                String html = CourseReminderEmailBuilder.buildDay2Reminder(
+                        firstName, day2Formatted, timeStr, locName, locUrl);
+                emails.add(EmailBuilder.create("info@freedive-mallorca.com", contact.getEmail(), "Freedive Mallorca")
+                        .addBcc("info@freedive-mallorca.com")
+                        .setSubject("Day 2 of your Freediver Course — See You Tomorrow! 🌊")
+                        .setHtmlContent(html));
+            }
+
+            final long msgId = messageId;
+            final int sent = emails.size();
+            new Thread(() -> {
+                try {
+                    for (blue.underwater.email.admin.Email e : emails) EmailAdmin.getInstance().send(e);
+                    telegram.editMessage(chatId, msgId,
+                        sent > 0
+                            ? "✅ <b>Day 2 reminder sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
+                            : "ℹ️ <b>No participants with contact info found</b>");
+                } catch (Exception ex) {
+                    Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+                    try {
+                        telegram.editMessage(chatId, msgId, "❌ <b>Failed to send emails</b>: " + ex.getMessage());
+                    } catch (TelegramApiException tex) {
+                        Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, tex);
+                    }
+                }
+            }).start();
+
+        } catch (Exception ex) {
+            Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
+            try {
+                telegram.editMessage(chatId, messageId, "❌ <b>Error</b>: " + ex.getMessage());
+            } catch (TelegramApiException tex) {
+                Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, tex);
             }
         }
     }
@@ -471,9 +566,14 @@ public class TelegramChatMain implements TelegramChat
     }
 
     private static main.reminder.DailyReminderService reminderService;
+    private static main.reminder.Day2ReminderService day2ReminderService;
 
     public static void setReminderService(main.reminder.DailyReminderService service) {
         reminderService = service;
+    }
+
+    public static void setDay2ReminderService(main.reminder.Day2ReminderService service) {
+        day2ReminderService = service;
     }
 
     private boolean find = false;
@@ -531,6 +631,13 @@ public class TelegramChatMain implements TelegramChat
                 } else if (reminderService != null) {
                     telegram.sendTextMessage(chatId, "🔍 Checking courses tomorrow...");
                     new Thread(() -> reminderService.checkAndNotify(chatId, 1)).start();
+                }
+            } else if (messageText.equals("/day2")) {
+                if (!TelegramCenter.getInstance().isAdmin(chatId) && !blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId)) {
+                    this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);
+                } else if (day2ReminderService != null) {
+                    telegram.sendTextMessage(chatId, "🔍 Checking Day 2 reminders...");
+                    new Thread(() -> day2ReminderService.checkDay2()).start();
                 }
             } else {
                 this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);

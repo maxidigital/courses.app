@@ -12,6 +12,7 @@ import java.net.InetSocketAddress;
 import main.contacts.ContactsService;
 import main.courses.menuchats.TelegramChatMain;
 import main.reminder.DailyReminderService;
+import main.reminder.Day2ReminderService;
 import main.server.ConfirmHandler;
 import main.server.MainHandler;
 import main.sheets.SettingsService;
@@ -58,6 +59,10 @@ public class Main implements TelegramAdmin.Listener
         DailyReminderService reminderService = new DailyReminderService();
         reminderService.start();
         TelegramChatMain.setReminderService(reminderService);
+
+        Day2ReminderService day2Service = new Day2ReminderService();
+        day2Service.start();
+        TelegramChatMain.setDay2ReminderService(day2Service);
 
         int port = Integer.parseInt(System.getProperty("server.port", System.getenv().getOrDefault("PORT", "8080")));
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
