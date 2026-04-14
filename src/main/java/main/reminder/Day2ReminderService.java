@@ -65,12 +65,9 @@ public class Day2ReminderService {
 
                 final int courseIndex = i;
 
+                final String warningText = "⚠️ <b>Freediver Course today but Day 2 details are not set.</b>\nRun /check48 to configure.";
                 if (!details.found) {
-                    TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                        new Day2ConfirmMenuChat(TelegramCenter.getInstance().getMain(), chatId,
-                            "⚠️ <b>Freediver Course today but Day 2 details are not set.</b>\nRun /check48 to configure.",
-                            isoDate, courseIndex)
-                    );
+                    sendMenu(requesterChatId, warningText, isoDate, courseIndex);
                     prompted++;
                     continue;
                 }
@@ -92,11 +89,7 @@ public class Day2ReminderService {
                     + "Send preparation instructions to participants?",
                     day2Formatted, locName, timeStr);
 
-                TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
-                    new Day2ConfirmMenuChat(TelegramCenter.getInstance().getMain(), chatId,
-                        text, isoDate, courseIndex)
-                );
-
+                sendMenu(requesterChatId, text, isoDate, courseIndex);
                 prompted++;
                 XLogger.info(this, "Day2 reminder prompt sent to admins for %s", isoDate);
             }
@@ -109,6 +102,18 @@ public class Day2ReminderService {
             if (requesterChatId > 0) {
                 TelegramCenter.getInstance().toUser(requesterChatId, "❌ Error: %s", e.getMessage());
             }
+        }
+    }
+
+    private void sendMenu(long requesterChatId, String text, String isoDate, int courseIndex) {
+        if (requesterChatId > 0) {
+            new Day2ConfirmMenuChat(TelegramCenter.getInstance().getMain(), requesterChatId,
+                text, isoDate, courseIndex).reply();
+        } else {
+            TelegramCenter.getInstance().sendMenuToAdmins(chatId ->
+                new Day2ConfirmMenuChat(TelegramCenter.getInstance().getMain(), chatId,
+                    text, isoDate, courseIndex)
+            );
         }
     }
 }
