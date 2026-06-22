@@ -15,6 +15,7 @@ import main.reminder.DailyReminderService;
 import main.reminder.Day2ReminderService;
 import main.server.ConfirmHandler;
 import main.server.MainHandler;
+import main.server.StaticHandler;
 import main.sheets.SettingsService;
 import main.sheets.medical.MedicalFormsService;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -68,6 +69,7 @@ public class Main implements TelegramAdmin.Listener
         HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
         server.createContext("/", new MainHandler());
         server.createContext("/confirm", new ConfirmHandler());
+        server.createContext("/static", new StaticHandler());
         server.start();
         XLogger.info(this, "HTTP server started on port %d", port);
 
