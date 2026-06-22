@@ -40,10 +40,10 @@ final class ContactsWatcher implements Runnable {
         if (isRunning) return;
         
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(this, 0, 5, TimeUnit.MINUTES);
         //scheduler.scheduleAtFixedRate(this, 0, 10, TimeUnit.SECONDS);
         isRunning = true;
-        XLogger.info(ContactsWatcher.class.getSimpleName() + " started, checking every minute");
+        XLogger.info(ContactsWatcher.class.getSimpleName() + " started, checking every 5 minutes");
     }
     
     /**

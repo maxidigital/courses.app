@@ -7,4 +7,4 @@ echo "$GOOGLE_CREDENTIALS_JSON" > /app/credentials.json
 # Write config.properties from env var (full content)
 echo "$CONFIG_PROPERTIES" > /app/config.properties
 
-exec java -jar app.jar
+exec java -XX:+UseContainerSupport -Xmx256m -XX:MaxMetaspaceSize=160m -Xss512k -XX:+UseSerialGC -jar app.jar

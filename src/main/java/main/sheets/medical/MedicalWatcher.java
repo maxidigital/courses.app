@@ -39,9 +39,9 @@ final class MedicalWatcher implements Runnable {
         if (isRunning) return;
         
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.scheduleAtFixedRate(this, 0, 1, TimeUnit.MINUTES);        
+        scheduler.scheduleAtFixedRate(this, 0, 5, TimeUnit.MINUTES);
         isRunning = true;
-        XLogger.info(MedicalWatcher.class, "MedicalWatcher started, checking every minute");
+        XLogger.info(MedicalWatcher.class, "MedicalWatcher started, checking every 5 minutes");
     }
     
     /**
