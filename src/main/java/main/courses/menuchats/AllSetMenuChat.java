@@ -7,7 +7,6 @@ import main.sheets.RemindersSheetsAdmin;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import blue.underwater.email.admin.EmailAdmin;
 import blue.underwater.email.admin.EmailBuilder;
 import blue.underwater.email.admin.Email;
 import java.util.logging.Level;
@@ -87,7 +86,7 @@ public class AllSetMenuChat implements MenuChat {
                     .setHtmlContent(createAllSetEmailBody());
             
             // Send the email
-            EmailAdmin.getInstance().send(email);
+            main.courses.EmailDispatch.sendWithRetry(email);
             
             // Record the reminder in the sheet
             RemindersSheetsAdmin.getInstance().addAllSetReminderSent(medicalForm.getEmail());

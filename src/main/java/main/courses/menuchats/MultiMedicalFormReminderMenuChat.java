@@ -1,7 +1,6 @@
 package main.courses.menuchats;
 
 import blue.underwater.telegram.admin.TelegramAdmin;
-import blue.underwater.email.admin.EmailAdmin;
 import blue.underwater.email.admin.EmailBuilder;
 import blue.underwater.email.admin.Email;
 import main.courses.menus.MultiMedicalFormReminderMenu;
@@ -80,7 +79,7 @@ public class MultiMedicalFormReminderMenuChat implements MenuChat {
                         .setHtmlContent(buildReminderEmailBody(contact));
                 
                 // Send the email
-                EmailAdmin.getInstance().send(emailToSend);
+                main.courses.EmailDispatch.sendWithRetry(emailToSend);
                 
                 // Record the reminder in the sheet
                 RemindersSheetsAdmin.getInstance().addMedicalFormMissedReminderSent(contact.getEmail());

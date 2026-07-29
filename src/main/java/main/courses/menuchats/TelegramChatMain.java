@@ -25,7 +25,7 @@ import main.reminder.CourseReminderEmailBuilder;
 import main.reminder.DailyReminderService;
 import main.telegram.TelegramCenter;
 import blue.underwater.email.admin.Email;
-import blue.underwater.email.admin.EmailAdmin;
+import main.courses.EmailDispatch;
 import blue.underwater.email.admin.EmailBuilder;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -263,6 +263,7 @@ public class TelegramChatMain implements TelegramChat
 
             main.courses.ContactsFinder.findContacts(courses);
             List<blue.underwater.email.admin.Email> emails = new ArrayList<>();
+            List<String> recipients = new ArrayList<>();
             for (Student student : course.getEventStudents().getStudents()) {
                 Contact contact = student.getContact();
                 if (contact == null) continue;
@@ -276,17 +277,26 @@ public class TelegramChatMain implements TelegramChat
                         .addBcc("info@freedive-mallorca.com")
                         .setSubject("Day 2 of your Freediver Course — See You Tomorrow! 🌊")
                         .setHtmlContent(html));
+                recipients.add(contact.getEmail());
             }
 
             final long msgId = messageId;
-            final int sent = emails.size();
             new Thread(() -> {
                 try {
-                    for (blue.underwater.email.admin.Email e : emails) EmailAdmin.getInstance().send(e);
-                    telegram.editMessage(chatId, msgId,
-                        sent > 0
-                            ? "✅ <b>Day 2 reminder sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
-                            : "ℹ️ <b>No participants with contact info found</b>");
+                    EmailDispatch.Result outcome = EmailDispatch.sendBatch(emails, recipients);
+                    int sent = outcome.sent.size();
+                    String result;
+                    if (outcome.isEmpty()) {
+                        result = "ℹ️ <b>No participants with contact info found</b>";
+                    } else if (outcome.failed.isEmpty()) {
+                        result = "✅ <b>Day 2 reminder sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>";
+                    } else if (sent == 0) {
+                        result = "❌ <b>Failed to send emails</b>\n" + outcome.describeFailures();
+                    } else {
+                        result = "⚠️ <b>Day 2 reminder sent to " + sent + " of " + outcome.total() + " participants</b>\n"
+                            + outcome.describeFailures();
+                    }
+                    telegram.editMessage(chatId, msgId, result);
                 } catch (Exception ex) {
                     Logger.getLogger(TelegramChatMain.class.getName()).log(Level.SEVERE, null, ex);
                     try {
@@ -517,12 +527,22 @@ public class TelegramChatMain implements TelegramChat
 
             new Thread(() -> {
                 try {
-                    for (Email msg : emails) EmailAdmin.getInstance().send(msg);
-                    CalendarService.getInstance().markStudentsAsPendingAndSetDetails(course.getXEvent(), emailsToMark, detailsStr);
-                    int sent = emails.size();
-                    String result = sent > 0
-                        ? "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>"
-                        : "ℹ️ <b>No emails sent</b>";
+                    EmailDispatch.Result outcome = EmailDispatch.sendBatch(emails, emailsToMark);
+                    // Only mark the participants whose email actually went out
+                    if (!outcome.sent.isEmpty())
+                        CalendarService.getInstance().markStudentsAsPendingAndSetDetails(course.getXEvent(), outcome.sent, detailsStr);
+                    int sent = outcome.sent.size();
+                    String result;
+                    if (outcome.isEmpty()) {
+                        result = "ℹ️ <b>No emails sent</b>";
+                    } else if (outcome.failed.isEmpty()) {
+                        result = "✅ <b>Emails sent to " + sent + " participant" + (sent == 1 ? "" : "s") + "</b>";
+                    } else if (sent == 0) {
+                        result = "❌ <b>Failed to send emails</b>\n" + outcome.describeFailures();
+                    } else {
+                        result = "⚠️ <b>Emails sent to " + sent + " of " + outcome.total() + " participants</b>\n"
+                            + outcome.describeFailures();
+                    }
                     if (skippedFinal > 0)
                         result += "\n⏭ " + skippedFinal + " already notified (pending/confirmed) — skipped";
                     telegram.editMessage(chatId, messageId, courseText + daySummary + "\n\n" + result);
