@@ -618,6 +618,13 @@ public class TelegramChatMain implements TelegramChat
             } else if (messageText.equals("/courses")) {
                 MenuChat menuChat = createCoursesMenu(telegram, chatId);
                 menuChat.reply();
+            } else if (messageText.equals("/check72")) {
+                if (!TelegramCenter.getInstance().isAdmin(chatId) && !blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId)) {
+                    this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);
+                } else if (reminderService != null) {
+                    telegram.sendTextMessage(chatId, "🔍 Checking courses in 72h...");
+                    new Thread(() -> reminderService.checkAndNotify(chatId, 3)).start();
+                }
             } else if (messageText.equals("/check48")) {
                 if (!TelegramCenter.getInstance().isAdmin(chatId) && !blue.underwater.telegram.admin.TelegramUsers.isRoot(chatId)) {
                     this.telegram.sendTextMessage(chatId, "Command not found: " + messageText);
