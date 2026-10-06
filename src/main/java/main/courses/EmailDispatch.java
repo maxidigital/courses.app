@@ -21,6 +21,9 @@ import java.util.logging.Logger;
  */
 public class EmailDispatch {
 
+    /** Where the internal copy of every outgoing email goes. */
+    public static final String BCC_ADDRESS = "freedive.mallorca.info@gmail.com";
+
     private static final int MAX_ATTEMPTS = 3;
     private static final long BASE_BACKOFF_MS = 1500;
 

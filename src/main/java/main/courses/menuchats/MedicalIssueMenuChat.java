@@ -57,7 +57,7 @@ public class MedicalIssueMenuChat implements MenuChat {
         try {
             // Create email using the EmailBuilder factory
             Email email = EmailBuilder.create("info@freedive-mallorca.com", medicalForm.getEmail(), "Freedive Mallorca")
-                    .addBcc("info@freedive-mallorca.com")
+                    .addBcc(main.courses.EmailDispatch.BCC_ADDRESS)
                     .setSubject("About your medical questionnaire")
                     .setHtmlContent(buildEmailBody());
             

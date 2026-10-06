@@ -81,7 +81,7 @@ public class AllSetMenuChat implements MenuChat {
         try {
             // Create email using the EmailBuilder factory
             Email email = EmailBuilder.create("info@freedive-mallorca.com", medicalForm.getEmail(), "Freedive Mallorca")
-                    .addBcc("info@freedive-mallorca.com")
+                    .addBcc(main.courses.EmailDispatch.BCC_ADDRESS)
                     .setSubject("You're all set – next step: the sea! 🌊")
                     .setHtmlContent(createAllSetEmailBody());
             

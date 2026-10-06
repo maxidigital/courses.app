@@ -274,7 +274,7 @@ public class TelegramChatMain implements TelegramChat
                 String html = CourseReminderEmailBuilder.buildDay2Reminder(
                         firstName, day2Formatted, timeStr, locName, locUrl);
                 emails.add(EmailBuilder.create("info@freedive-mallorca.com", contact.getEmail(), "Freedive Mallorca")
-                        .addBcc("info@freedive-mallorca.com")
+                        .addBcc(main.courses.EmailDispatch.BCC_ADDRESS)
                         .setSubject("Day 2 of your Freediver Course — See You Tomorrow! 🌊")
                         .setHtmlContent(html));
                 recipients.add(contact.getEmail());
@@ -512,7 +512,7 @@ public class TelegramChatMain implements TelegramChat
                         courseType.getDayDescription(2, ""));
                 }
                 emails.add(EmailBuilder.create("info@freedive-mallorca.com", email, "Freedive Mallorca")
-                    .addBcc("info@freedive-mallorca.com")
+                    .addBcc(main.courses.EmailDispatch.BCC_ADDRESS)
                     .setSubject("Your " + course.getType() + " - " + day1Date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")) + " – Final Details ✅")
                     .setHtmlContent(html));
                 emailsToMark.add(email);

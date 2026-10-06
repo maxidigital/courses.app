@@ -74,7 +74,7 @@ public class MultiMedicalFormReminderMenuChat implements MenuChat {
             if (contact != null) {
                 // Create email using the EmailBuilder factory
                 Email emailToSend = EmailBuilder.create("info@freedive-mallorca.com", contact.getEmail(), "Freedive Mallorca")
-                        .addBcc("info@freedive-mallorca.com")
+                        .addBcc(main.courses.EmailDispatch.BCC_ADDRESS)
                         .setSubject("Medical form reminder")
                         .setHtmlContent(buildReminderEmailBody(contact));
                 
