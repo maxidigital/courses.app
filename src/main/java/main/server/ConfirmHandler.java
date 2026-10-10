@@ -58,12 +58,19 @@ public class ConfirmHandler implements HttpHandler {
                 if (eventId != null && !eventId.equals(course.getXEvent().getId())) continue;
                 Student student = course.getEventStudents().getStudentByEmailHash(token);
                 if (student != null) {
-                    CalendarService.getInstance().markStudentAsConfirmed(course.getXEvent(), student.getEmail());
-                    XLogger.info(this, "Confirmed: %s", student.getEmail());
                     main.contacts.Contact contact = main.contacts.ContactsService.getInstance().findByEmail(student.getEmail());
                     String displayName = (contact != null && contact.getFistName() != null && !contact.getFistName().trim().isEmpty())
                         ? contact.getFistName().trim()
                         : student.getEmail();
+                    // A repeated click on an already confirmed link changes nothing and notifies nobody
+                    if (!student.isConfirmed()) {
+                        if (!CalendarService.getInstance().markStudentAsConfirmed(course.getXEvent(), student.getEmail())) {
+                            return errorPage("Something went wrong. Please contact us.");
+                        }
+                        XLogger.info(this, "Confirmed: %s", student.getEmail());
+                        main.telegram.TelegramCenter.getInstance().toAdmin("☀️ <b>Details confirmed</b>\n%s (%s)\n%s - %s",
+                            displayName, student.getEmail(), course.getType(), course.getDate().format("dd MMM yyyy"));
+                    }
                     String courseUrl = main.courses.Offering.fromName(course.getType()).url;
                     if (courseUrl == null) courseUrl = "https://www.freedive-mallorca.com";
                     return successPage(displayName, courseUrl);

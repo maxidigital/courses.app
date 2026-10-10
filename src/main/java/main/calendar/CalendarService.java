@@ -54,19 +54,37 @@ public class CalendarService {
         }
     }
     
-    public void markStudentAsConfirmed(XEvent event, String email) {
+    /**
+     * Student emails are handled in lower case, but the calendar keeps them as
+     * typed (e.g. "+++Colin.vw@icloud.com"), so the match ignores case.
+     */
+    private static String setMarker(String raw, String email, ConfirmationState state) {
+        return raw.replaceAll(
+            "(?i)(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
+            "$1  " + state.marker
+        );
+    }
+
+    /**
+     * @return true only if the marker was written and saved to the calendar
+     */
+    public boolean markStudentAsConfirmed(XEvent event, String email) {
         try {
             String raw = event.getDescription().getRawText();
-            String updated = raw.replaceAll(
-                "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
-                "$1  " + ConfirmationState.CONFIRMED.marker
-            );
+            String updated = setMarker(raw, email, ConfirmationState.CONFIRMED);
+            if (updated.equals(raw)) {
+                XLogger.severe(this, "Could not find %s in the event description, nothing marked", email);
+                main.telegram.TelegramCenter.getInstance().toRoot("❌ <b>markStudentAsConfirmed failed</b>\nEmail: %s\nError: email not found in the event description", email);
+                return false;
+            }
             event.getDescription().setText(updated);
             admin.updateEvent(event);
             XLogger.info(this, "Marked %s as CONFIRMED in calendar", email);
+            return true;
         } catch (IOException | GeneralSecurityException e) {
             XLogger.severe(this, "Failed to update calendar for %s: %s", email, e.getMessage());
             main.telegram.TelegramCenter.getInstance().toRoot("❌ <b>markStudentAsConfirmed failed</b>\nEmail: %s\nError: %s", email, e.getMessage());
+            return false;
         }
     }
 
@@ -74,10 +92,7 @@ public class CalendarService {
         try {
             String raw = event.getDescription().getRawText();
             // Remove any existing state marker on this email's line, then add #PENDING#
-            String updated = raw.replaceAll(
-                "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
-                "$1  " + ConfirmationState.PENDING.marker
-            );
+            String updated = setMarker(raw, email, ConfirmationState.PENDING);
             event.getDescription().setText(updated);
             admin.updateEvent(event);
             XLogger.info(this, "Marked %s as PENDING in calendar", email);
@@ -107,10 +122,7 @@ public class CalendarService {
         try {
             String updated = event.getDescription().getRawText();
             for (String email : emails) {
-                updated = updated.replaceAll(
-                    "(\\+\\+\\+" + java.util.regex.Pattern.quote(email) + ")(\\s*(#PENDING#|#CONFIRMED#|#IGNORE#))?",
-                    "$1  " + ConfirmationState.PENDING.marker
-                );
+                updated = setMarker(updated, email, ConfirmationState.PENDING);
             }
             String block = "\n\n#DETAILS#{\n" + details + "\n}";
             if (updated.contains("#DETAILS#{")) {
