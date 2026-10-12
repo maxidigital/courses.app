@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Email sending with per-recipient isolation and retries.
@@ -23,6 +25,12 @@ public class EmailDispatch {
 
     /** Where the internal copy of every outgoing email goes. */
     public static final String BCC_ADDRESS = "freedive.mallorca.info@gmail.com";
+
+    /**
+     * Sent along with every email; Mailjet echoes it back in its event
+     * webhooks, which is how we tell our emails from others on the account.
+     */
+    public static final String CUSTOM_ID = "courses.app";
 
     private static final int MAX_ATTEMPTS = 3;
     private static final long BASE_BACKOFF_MS = 1500;
@@ -63,7 +71,7 @@ public class EmailDispatch {
         Exception last = null;
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             try {
-                EmailAdmin.getInstance().send(email);
+                EmailAdmin.getInstance().sendJson(taggedJson(email));
                 return;
             } catch (Exception ex) {
                 last = ex;
@@ -80,6 +88,15 @@ public class EmailDispatch {
             }
         }
         throw last;
+    }
+
+    private static String taggedJson(Email email) {
+        JSONObject root = new JSONObject(email.getJson());
+        JSONArray messages = root.getJSONArray("Messages");
+        for (int i = 0; i < messages.length(); i++) {
+            messages.getJSONObject(i).put("CustomID", CUSTOM_ID);
+        }
+        return root.toString();
     }
 
     /**
