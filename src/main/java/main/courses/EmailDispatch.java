@@ -94,7 +94,11 @@ public class EmailDispatch {
         JSONObject root = new JSONObject(email.getJson());
         JSONArray messages = root.getJSONArray("Messages");
         for (int i = 0; i < messages.length(); i++) {
-            messages.getJSONObject(i).put("CustomID", CUSTOM_ID);
+            JSONObject message = messages.getJSONObject(i);
+            message.put("CustomID", CUSTOM_ID);
+            // Opens are reported to /mailjet/events; the subject comes back as the event payload
+            message.put("TrackOpens", "enabled");
+            message.put("EventPayload", message.optString("Subject", ""));
         }
         return root.toString();
     }

@@ -7,18 +7,36 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 import main.courses.EmailDispatch;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
  * Receives Mailjet event webhooks and tells admins when one of our emails
- * could not be delivered (bounced or blocked).
+ * could not be delivered (bounced or blocked) or was opened for the first time.
  *
  * The endpoint is closed until a key is configured (MAILJET_WEBHOOK_KEY env
  * var or mailjet.webhook.key property); Mailjet must call it with ?key=...
  */
 public class MailjetEventHandler implements HttpHandler {
+
+    private static final int MAX_REMEMBERED_OPENS = 5000;
+
+    /**
+     * Messages whose first open was already reported. Kept in memory only, so
+     * a restart forgets them and a later re-open is reported once more.
+     */
+    private static final Set<String> reportedOpens = Collections.synchronizedSet(
+        Collections.newSetFromMap(new LinkedHashMap<String, Boolean>() {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+                return size() > MAX_REMEMBERED_OPENS;
+            }
+        }));
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -46,21 +64,53 @@ public class MailjetEventHandler implements HttpHandler {
     }
 
     private void process(JSONObject event) {
-        String reason = failureReason(event);
-        if (reason == null) return;
-
         String email = event.optString("email", "").toLowerCase();
-        XLogger.info(this, "Email not delivered to %s: %s", email, reason);
 
-        String who = email;
+        String reason = failureReason(event);
+        if (reason != null) {
+            XLogger.info(this, "Email not delivered to %s: %s", email, reason);
+            notifyAll(String.format("📭 <b>Email not delivered</b>\n%s\nReason: %s\n\nCheck the address in the calendar.",
+                escape(describe(email)), escape(reason)));
+            return;
+        }
+
+        String openKey = openKey(event);
+        if (openKey != null && reportedOpens.add(openKey)) {
+            XLogger.info(this, "Email opened by %s", email);
+            String subject = event.optString("Payload", "");
+            notifyAll(String.format("👀 <b>Email opened</b>\n%s%s",
+                escape(describe(email)), subject.isEmpty() ? "" : "\n" + escape(subject)));
+        }
+    }
+
+    private static String describe(String email) {
         main.contacts.Contact contact = main.contacts.ContactsService.getInstance().findByEmail(email);
         if (contact != null && contact.getFistName() != null && !contact.getFistName().trim().isEmpty()) {
-            who = contact.getFistName().trim() + " (" + email + ")";
+            return contact.getFistName().trim() + " (" + email + ")";
         }
-        String notice = String.format("📭 <b>Email not delivered</b>\n%s\nReason: %s\n\nCheck the address in the calendar.",
-            escape(who), escape(reason));
+        return email;
+    }
+
+    private static void notifyAll(String notice) {
         main.telegram.TelegramCenter.getInstance().toAdmin("%s", notice);
         main.telegram.TelegramCenter.getInstance().toRoot("%s", notice);
+    }
+
+    private static boolean isOurs(JSONObject event) {
+        if (!EmailDispatch.CUSTOM_ID.equals(event.optString("CustomID", ""))) return false;
+        String email = event.optString("email", "");
+        return !email.isEmpty() && !email.equalsIgnoreCase(EmailDispatch.BCC_ADDRESS);
+    }
+
+    /**
+     * @return what identifies the opened message (Mailjet gives every
+     * recipient its own MessageID), or null if this is not an open of one of
+     * our emails
+     */
+    static String openKey(JSONObject event) {
+        if (!event.optString("event", "").equals("open") || !isOurs(event)) return null;
+        String messageId = event.optString("MessageID", "");
+        return messageId.isEmpty() ? event.optString("email", "").toLowerCase() : messageId;
     }
 
     /**
@@ -70,9 +120,7 @@ public class MailjetEventHandler implements HttpHandler {
     static String failureReason(JSONObject event) {
         String type = event.optString("event", "");
         if (!type.equals("bounce") && !type.equals("blocked")) return null;
-        if (!EmailDispatch.CUSTOM_ID.equals(event.optString("CustomID", ""))) return null;
-        String email = event.optString("email", "");
-        if (email.isEmpty() || email.equalsIgnoreCase(EmailDispatch.BCC_ADDRESS)) return null;
+        if (!isOurs(event)) return null;
 
         String reason;
         if (type.equals("blocked")) reason = "blocked";
