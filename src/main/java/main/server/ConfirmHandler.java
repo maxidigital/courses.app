@@ -68,8 +68,10 @@ public class ConfirmHandler implements HttpHandler {
                             return errorPage("Something went wrong. Please contact us.");
                         }
                         XLogger.info(this, "Confirmed: %s", student.getEmail());
-                        main.telegram.TelegramCenter.getInstance().toAdmin("☀️ <b>Details confirmed</b>\n%s (%s)\n%s - %s",
+                        String notice = String.format("☀️ <b>Details confirmed</b>\n%s (%s)\n%s - %s",
                             displayName, student.getEmail(), course.getType(), course.getDate().format("dd MMM yyyy"));
+                        main.telegram.TelegramCenter.getInstance().toAdmin("%s", notice);
+                        main.telegram.TelegramCenter.getInstance().toRoot("%s", notice);
                     }
                     String courseUrl = main.courses.Offering.fromName(course.getType()).url;
                     if (courseUrl == null) courseUrl = "https://www.freedive-mallorca.com";
